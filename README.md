@@ -189,7 +189,9 @@ Instead of memorizing commands, just describe what you want:
 After installation, terminus will prompt you to configure your API key on first run. The configuration is stored in `~/.config/terminus.json`.
 
 ### Manual Configuration
-Edit your config file directly:
+Edit your config file directly,
+
+To edit : notepad "$env:USERPROFILE\.config\terminus.json" and manually update the api key
 ```json
 {
   "default_model": "google-gla:gemini-2.0-flash-exp",
