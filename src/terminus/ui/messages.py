@@ -6,8 +6,8 @@ from rich.pretty import Pretty
 from rich.table import Table
 from rich.text import Text
 
-from terminus.constants import APP_NAME, APP_VERSION
-from terminus.session import session
+from terminus.shared.constants import APP_NAME, APP_VERSION
+from terminus.core.session import session
 from terminus.ui import panels
 from terminus.ui.colors import colors
 

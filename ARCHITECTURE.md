@@ -1,677 +1,1638 @@
-# Terminus CLI - Complete Architecture Documentation
+# Terminus CLI - Architecture Documentation
 
 ## Table of Contents
-- [Overview](#overview)
-- [Core Architecture](#core-architecture)
-- [Agent System](#agent-system)
-- [Tool System](#tool-system)
-- [UI System](#ui-system)
-- [Request Processing Flow](#request-processing-flow)
-- [Configuration System](#configuration-system)
-- [Safety & Security](#safety--security)
+- [System Overview](#system-overview)
+- [Architecture Principles](#architecture-principles)
+- [Core Components](#core-components)
+- [Multi-Model Support](#multi-model-support)
+- [Tool System Architecture](#tool-system-architecture)
+- [Session Management](#session-management)
+- [Safety Framework](#safety-framework)
+- [User Interface System](#user-interface-system)
+- [Request Processing Pipeline](#request-processing-pipeline)
+- [Configuration Management](#configuration-management)
 - [Project Structure](#project-structure)
-- [Key Design Principles](#key-design-principles)
-- [Development Guide](#development-guide)
+- [Development Guidelines](#development-guidelines)
 
-## Overview
+## System Overview
 
-**Terminus** is a lightweight terminal automation system powered by AI (specifically Google Gemini 2.0 Flash). It's designed as an intelligent CLI assistant that understands natural language commands and executes complex multi-step operations through a collection of 28 specialized tools.
+Terminus CLI is an advanced terminal automation system built around a sophisticated AI agent that orchestrates specialized tools to accomplish complex workflows. The system is designed with a clean separation of concerns, modular architecture, and comprehensive safety mechanisms.
 
-## Design Philosophy & Tool Selection Flow
+### Key Architectural Features
+
+**Single Agent Design**: Unlike multi-agent systems, Terminus uses one intelligent agent that coordinates multiple specialized tools, reducing complexity while maintaining powerful capabilities.
+
+**Multi-Model Support**: Flexible AI backend supporting both cloud-based models (Google Gemini) and local models (Ollama) for different use cases and privacy requirements.
+
+**Tool-First Architecture**: Core functionality implemented as discrete, composable tools that can be combined for complex workflows.
+
+**Session Persistence**: Maintains conversation context, working directory state, and user preferences across application restarts.
+
+**Safety by Design**: Multi-layer confirmation system prevents accidental destructive operations while maintaining workflow efficiency.
+
+## Architecture Principles
 
 ### Design Philosophy
 
-- **Action-Oriented**: The system is designed to bias toward action—when in doubt, it takes steps to fulfill the user's intent, not just explain what it could do.
-- **Minimalism**: Output is concise and focused on results, not narration.
-- **Safety**: Destructive or potentially risky actions always require explicit user confirmation, with clear previews.
-- **Extensibility**: New tools can be added easily, and the agent will automatically consider them for relevant tasks.
-- **Composability**: Tools are designed to be chained together for complex workflows, with the agent orchestrating multi-step plans.
+**Action-Oriented Approach**: The system prioritizes taking action over explanation. When user intent is clear, Terminus executes appropriate tools rather than merely describing what could be done.
 
-### Agent Tool Selection & Execution Flow
+**Minimalist Output**: Responses are concise and focused on results. Verbose explanations are avoided in favor of clear, actionable information.
 
-#### How Natural Language Input is Interpreted and Tool Selection Happens
+**Safety Without Friction**: Destructive operations require confirmation with clear previews, but safe operations proceed immediately to maintain workflow efficiency.
 
-1. **LLM as the Brain**
-   - Terminus uses a large language model (LLM, e.g., Google Gemini) as the core reasoning engine.
-   - The LLM receives the user's raw natural language input, the current session context, and a detailed system prompt.
+**Extensible Foundation**: New tools can be added easily, and the agent automatically incorporates them into its reasoning without configuration changes.
 
-2. **System Prompt Engineering**
-   - The system prompt (`prompts/system.txt`) describes all available tools, their purposes, and usage patterns.
-   - It instructs the LLM to always prefer specialized tools, to read before writing, and to chain tools for complex tasks.
+**Composable Operations**: Tools are designed to work together, enabling the agent to orchestrate complex multi-step workflows from simple components.
 
-3. **Tool Metadata Exposure**
-   - Each tool is registered with a docstring that describes its function, parameters, and safety level.
-   - The LLM sees these docstrings and uses them to match user intent to the right tool(s).
+### Agent Decision-Making Process
 
-4. **Intent Parsing**
-   - The LLM parses the user's request to extract actionable intent (e.g., "find all TODOs" → search for comments, "summarize code" → analyze files).
-   - It identifies required parameters (file patterns, search terms, etc.) from the input.
+**Intent Recognition**: The language model analyzes natural language input to determine whether the request is informational, action-oriented, or hybrid.
 
-5. **Tool Selection Logic**
-   - The LLM matches the parsed intent to the most relevant tool(s) by comparing the request to tool docstrings and parameter types.
-   - If a request requires multiple steps, the LLM plans a sequence (e.g., find files → read files → update report).
-   - If no specialized tool matches, it falls back to `run_command` for generic shell execution.
+**Tool Selection**: Based on intent analysis, the agent matches requests to the most appropriate tools by comparing against tool docstrings and parameter requirements.
 
-6. **Dynamic Planning**
-   - The LLM can adapt its plan based on intermediate results (e.g., if no TODOs are found, it may skip report generation).
-   - It can ask for clarification if the request is ambiguous.
+**Workflow Planning**: For complex requests, the agent plans sequences of tool invocations, using outputs from earlier tools as inputs to later ones.
 
-7. **Execution and Feedback Loop**
-   - The agent executes the selected tool(s), passing results back to the LLM for further reasoning if needed.
-   - The LLM can generate follow-up tool calls or finalize the response based on tool outputs.
+**Dynamic Adaptation**: Plans can be modified based on intermediate results, errors, or user feedback during execution.
 
-**Example:**
+**Context Integration**: All decisions consider conversation history, current working directory, project structure, and previous tool outputs.
+## Core Components
 
-> User: "List all Python files with TODO comments and summarize them."
+### Application Entry Point
 
-- LLM interprets: Find all `.py` files → search for TODOs → summarize results.
-- Tool chain: `find` (pattern: `*.py`) → `grep` or `search_todos` → synthesize summary.
-- The LLM generates the tool calls, interprets results, and produces a concise summary for the user.
-
-1. **Intent Recognition**
-   - The agent parses the user's natural language input to determine intent (action, information, or hybrid).
-   - It uses the system prompt and conversation context to disambiguate requests.
-
-2. **Tool Matching**
-   - The agent reviews all registered tools, considering their docstrings, parameter types, and safety level.
-   - It prefers specialized tools (e.g., `read_file`, `find`, `grep`) over generic shell execution (`run_command`).
-   - If multiple tools could apply, it may chain them (e.g., `find` → `read_file` → `update_file`).
-
-3. **Planning & Routing**
-   - For complex requests, the agent plans a sequence of tool invocations, routing outputs from one tool as inputs to the next.
-   - The plan is dynamically adjusted based on intermediate results and user confirmations.
-
-4. **Confirmation & Preview**
-   - Before executing any destructive or irreversible action, the agent presents a preview panel and asks for confirmation.
-   - The user can approve, deny, or "always allow" specific tools for the session.
-
-5. **Execution & Feedback**
-   - The agent executes the selected tool(s), displaying real-time status and results in the terminal UI.
-   - Errors are handled gracefully, with actionable messages and logs if needed.
-
-6. **Session Update**
-   - The session state (messages, working directory, allowed commands, etc.) is updated after each operation.
-   - The agent uses this context for future requests, enabling context-aware automation.
-
-### Example: How a Request is Handled
-
-> User: "Find all TODOs in Python files and create a summary report."
-
-1. Agent uses `find` to locate all `.py` files.
-2. Agent uses `grep` or `search_todos` to extract TODO comments from those files.
-3. Agent uses `write_file` or `update_file` to create or update a summary report.
-4. If file creation is involved, a confirmation panel is shown before writing.
-5. Results are displayed in a concise, actionable format.
-
-### What Makes Terminus Special
-
-- **Terminal-native**: Works in any shell, on any system
-- **Language-agnostic**: Handles any file type or project structure  
-- **Context-aware**: Remembers workflow and adapts to your project
-- **Transparent**: Shows exactly what it's doing with confirmation prompts
-- **Single Agent Design**: One intelligent agent with many tools vs multiple specialized agents
-
-## Core Architecture
-
-### Application Entry Point (`__main__.py`)
+The application follows a clean initialization sequence managed by the main entry point:
 
 ```python
-# Entry Point: terminus.__main__:app (defined in pyproject.toml)
-# Framework: Built with typer for CLI interface
+# Entry Point: terminus.interface.cli.__main__:app
+# Framework: Built with typer for robust CLI interface management
 
-def main():
-    """Main application flow"""
-    1. Initialize configuration (API keys, settings)
-    2. Setup logging and session
-    3. Load project guide (if terminus.md exists)
-    4. Start the REPL (Read-Eval-Print Loop)
+async def main():
+    """Application startup sequence"""
+    1. Load and validate configuration
+    2. Initialize logging and error handling  
+    3. Setup session management
+    4. Load project context if available
+    5. Start interactive REPL
 ```
 
-**Key Components:**
-- **CLI Framework**: `typer` for command-line interface
-- **Async Event Loop**: Manual setup for proper signal handling
-- **Configuration Loading**: Handles first-time setup and validation
-- **Session Initialization**: Prepares global state
+**Key Responsibilities:**
+- **Configuration Management**: Handles first-time setup, validation, and API key management
+- **Session Initialization**: Prepares global application state and context
+- **Error Handling**: Establishes comprehensive error catching and recovery
+- **Signal Management**: Provides graceful shutdown and interruption handling
 
-### Session Management (`session.py`)
+### Agent Orchestration System
 
-The global session object maintains state across the entire application lifecycle:
+The core agent system provides intelligent coordination of tools and workflows:
 
 ```python
+# Located in: core/agent.py
+
+@dataclass
+class AgentManager:
+    """Central agent management with multi-model support"""
+    agents: Dict[str, Agent] = field(default_factory=dict)
+    current_model: str = DEFAULT_MODEL
+    
+def get_or_create_agent(model_name: str = None) -> Agent:
+    """Retrieve or create agent for specified model"""
+    model = model_name or session.current_model
+    if model not in session.agents:
+        agent = Agent(
+            model=model,
+            system_prompt=load_system_prompt(),
+            tools=create_tools(),
+            deps_type=ToolDeps
+        )
+        session.agents[model] = agent
+    return session.agents[model]
+```
+
+**Agent Capabilities:**
+- **Multi-Model Support**: Seamless switching between Google Gemini and Ollama models
+- **Context Management**: Maintains conversation history and project understanding
+- **Tool Orchestration**: Intelligent selection and chaining of specialized tools
+- **Error Recovery**: Graceful handling of failures with alternative approaches
+
+### Session Management Infrastructure
+
+Global session state maintains context and preferences across the application lifecycle:
+
+```python
+# Located in: core/session.py
+
 @dataclass
 class Session:
-    current_model: str = DEFAULT_MODEL           # AI model identifier
-    agents: Dict = field(default_factory=dict)   # Agent instances cache
-    messages: list = field(default_factory=list) # Conversation history
-    working_directory: Path                      # Current working directory
-    allowed_commands: Set[str]                   # Whitelisted shell commands
-    confirmation_enabled: bool = True            # Tool confirmation prompts
-    disabled_confirmations: Set[str]             # Tools user always allows
-    spinner: Any = None                          # UI spinner state
-    current_task: Optional[asyncio.Task] = None  # Active async task
-    sigint_received: bool = False                # Signal handling state
+    """Application-wide state management"""
+    current_model: str = DEFAULT_MODEL
+    agents: Dict[str, Agent] = field(default_factory=dict)
+    messages: List[Message] = field(default_factory=list)
+    working_directory: Path = field(default_factory=Path.cwd)
+    allowed_commands: Set[str] = field(default_factory=set)
+    confirmation_enabled: bool = True
+    disabled_confirmations: Set[str] = field(default_factory=set)
+    current_task: Optional[asyncio.Task] = None
+    session_metadata: Dict = field(default_factory=dict)
 ```
 
-**Session Responsibilities:**
-- Maintains conversation context between requests
-- Tracks working directory changes
-- Manages user preferences (confirmations, allowed commands)
-- Handles UI state (spinners, current operations)
-- Provides signal handling for graceful cancellation
+**Session Features:**
+- **Persistent Context**: Conversation history and working directory tracking
+- **User Preferences**: Confirmation settings and allowed command management
+- **Task Coordination**: Async task management with cancellation support
+- **State Persistence**: Save and load session data across application restarts
+## Multi-Model Support
 
-## Agent System
+### Model Provider Architecture
 
-### Single Agent Architecture
-
-Unlike complex multi-agent systems, Terminus uses a **focused single-agent approach**:
+Terminus CLI implements a flexible model provider system supporting both cloud and local AI models:
 
 ```python
-def get_or_create_agent():
-    """Create or retrieve the main agent instance"""
-    if "default" not in session.agents:
-        base_agent = Agent(
-            model=DEFAULT_MODEL,              # Google Gemini 2.0 Flash
-            system_prompt=_get_prompt("system"), # From prompts/system.txt
-            tools=TOOLS,                      # 28 specialized tools
-            deps_type=ToolDeps,              # Dependencies for tool execution
-        )
-        session.agents["default"] = base_agent
-    return session.agents["default"]
+# Located in: infrastructure/models/
+
+class ModelManager:
+    """Manages multiple AI model providers"""
+    
+    def __init__(self):
+        self.providers = {
+            'google': GoogleModelProvider(),
+            'ollama': OllamaModelProvider()
+        }
+    
+    async def switch_model(self, model_identifier: str):
+        """Switch active model with validation"""
+        provider, model = self.parse_model_identifier(model_identifier)
+        await self.providers[provider].validate_model(model)
+        session.current_model = model_identifier
 ```
 
-### Agent System Prompt
+### Google Gemini Integration
 
-The agent's behavior is defined by a comprehensive system prompt (`prompts/system.txt`) that includes:
+**Cloud-Based Processing**: Utilizes Google's Gemini 2.0 Flash Experimental model for advanced reasoning and complex analysis tasks.
 
-- **Intent Recognition**: Action vs Information vs Hybrid requests
-- **Tool Selection Guidelines**: Preference order and usage patterns
-- **Response Style**: Minimal, actionable output
-- **Workflow Patterns**: Common task sequences
-- **Safety Guidelines**: When to use confirmations
+**Key Features:**
+- Advanced natural language understanding
+- Superior code analysis and generation capabilities
+- Complex multi-step workflow planning
+- Extensive context window for large projects
 
-### Agent Processing Flow
+**Configuration:**
+```python
+google_config = {
+    "api_key": "your-gemini-api-key",
+    "model": "gemini-2.0-flash-exp",
+    "safety_settings": {...},
+    "generation_config": {...}
+}
+```
+
+### Ollama Local Model Support
+
+**Offline Operation**: Complete functionality without internet connectivity using locally hosted models.
+
+**Supported Models:**
+- **Qwen**: Excellent for code understanding and generation
+- **Llama**: General-purpose reasoning and analysis
+- **CodeLlama**: Specialized for programming tasks
+- **Custom Models**: Any Ollama-compatible model
+
+**OpenAI API Compatibility**: Implements OpenAI-compatible endpoint (`http://localhost:11434/v1`) for seamless pydantic-ai integration.
+
+**Configuration:**
+```python
+ollama_config = {
+    "base_url": "http://localhost:11434/v1",
+    "model": "qwen:latest",
+    "enabled": True,
+    "timeout": 60
+}
+```
+
+### Model Selection Strategy
+
+**Automatic Failover**: If primary model is unavailable, automatically fallback to alternative models based on task requirements.
+
+**Task-Specific Selection**: Different models optimized for different task types:
+- **Complex Analysis**: Google Gemini
+- **Code Generation**: CodeLlama or Qwen
+- **Offline Work**: Any available Ollama model
+- **Privacy-Sensitive**: Local models only
+
+## Tool System Architecture
+
+### Tool Organization and Categories
+
+Terminus CLI provides **40 specialized tools** organized into logical categories for clear separation of concerns:
+
+```
+tools/
+├── filesystem/          # File and directory operations (10 tools)
+│   ├── read_file.py    # File content reading and analysis
+│   ├── write_file.py   # File creation with content generation
+│   ├── update_file.py  # Intelligent file modification
+│   ├── find.py         # Pattern-based file discovery
+│   ├── grep.py         # Text search across files
+│   ├── list.py         # Directory browsing and visualization
+│   ├── directory.py    # Directory navigation and management
+│   └── file_discovery.py # Advanced file type analysis
+├── development/         # Development workflow tools (8 tools)
+│   ├── git.py          # Git operations and version control
+│   ├── code_analysis.py # Code structure analysis
+│   ├── dev_workflow.py # Development utilities
+│   └── project_automation.py # Automated project tasks
+├── system/             # System utilities (5 tools)
+│   ├── run_command.py  # Safe shell command execution
+│   └── system_utilities.py # System information and cleanup
+├── integrations/       # External service integration (10 tools)
+│   ├── gmail.py        # Email management and automation
+│   ├── calendar.py     # Calendar operations and scheduling
+│   └── google_setup.py # Google API authentication
+├── help/               # Help and documentation (3 tools)
+│   └── help_system.py  # User assistance and guidance
+└── wrapper.py          # Tool registration and management
+```
+
+### Tool Implementation Pattern
+
+Each tool follows a consistent implementation pattern for reliability and maintainability:
 
 ```python
-async def process_request(message: str):
-    """Main agent processing pipeline"""
-    1. Load conversation history
-    2. Prepend project guide if available
-    3. Create tool dependencies (confirmation, status display)
-    4. Iterate through agent responses
-    5. Process each node (tool calls, text responses)
-    6. Update session state
-    7. Return final response
+async def tool_function(ctx: RunContext[ToolDeps], param: str) -> str:
+    """
+    Brief description of tool function for AI agent understanding.
+    
+    Args:
+        ctx: Runtime context with access to confirmation and status callbacks
+        param: Tool-specific parameters with type hints
+        
+    Returns:
+        Result string or structured data for agent processing
+    """
+    try:
+        # Parameter validation
+        if not param:
+            return "Error: Required parameter missing"
+            
+        # Tool-specific logic
+        result = perform_operation(param)
+        
+        # Status updates for long operations
+        if ctx.deps.display_tool_status:
+            ctx.deps.display_tool_status(f"Processing {param}...")
+            
+        # Confirmation for destructive operations
+        if requires_confirmation and ctx.deps.confirm_action:
+            confirmed = await ctx.deps.confirm_action(
+                title="Confirm Operation",
+                preview=preview_data,
+                footer="This action cannot be undone"
+            )
+            if not confirmed:
+                return "Operation cancelled by user"
+                
+        return f"Successfully completed: {result}"
+        
+    except Exception as e:
+        return f"Error: {str(e)}"
 ```
 
-## Tool System
+### Tool Safety Classification
 
-### Tool Architecture
+Tools are classified by safety level to determine confirmation requirements:
 
-Terminus provides **35 specialized tools** organized into logical categories:
+**Safe Tools** (No confirmation required):
+- File reading and analysis operations
+- Directory browsing and navigation
+- Information gathering and reporting
+- Help and documentation access
 
-#### 📁 File & Directory Operations (10 tools)
-
-| Tool | Purpose | Safety Level |
-|------|---------|--------------|
-| `read_file` | Read and analyze files | Safe |
-| `write_file` | Create new files | Requires confirmation |
-| `update_file` | Modify existing files intelligently | Requires confirmation |
-| `list_directory` | Browse with tree structure | Safe |
-| `find` | Find files by pattern | Safe |
-| `grep` | Text search across files | Safe |
-| `find_by_extension` | Find by file type | Safe |
-| `list_extensions` | Catalog project file types | Safe |
-| `change_directory` | Session-aware navigation | Safe |
-| `get_current_directory` | Show current location | Safe |
-
-#### 🔍 Analysis & Discovery (5 tools)
-
-| Tool | Purpose | Safety Level |
-|------|---------|--------------|
-| `summarize_code` | Analyze and explain code | Safe |
-| `analyze_project_structure` | Complete project overview | Safe |
-| `search_todos` | Find TODO/FIXME comments | Safe |
-| `package_info` | Project metadata | Safe |
-| `quick_stats` | File/directory statistics | Safe |
-
-#### 🚀 Development Workflow (5 tools)
-
-| Tool | Purpose | Safety Level |
-|------|---------|--------------|
-| `git_add` | Stage files with preview | Requires confirmation |
-| `git_commit` | Commit with message | Requires confirmation |
-| `git_status_enhanced` | Visual git status | Safe |
-| `quick_commit` | Fast commit workflow | Requires confirmation |
-| `create_project_template` | Project scaffolding | Requires confirmation |
-
-#### 🔧 System & Automation (5 tools)
-
-| Tool | Purpose | Safety Level |
-|------|---------|--------------|
-| `run_command` | Execute shell commands safely | Requires confirmation |
-| `run_in_directory` | Execute in specific directories | Requires confirmation |
-| `system_info` | System information | Safe |
-| `find_large_files` | Locate large files | Safe |
-| `clean_temp_files` | Clean temporary files | Requires confirmation |
-
-#### 📚 Help & Documentation (3 tools)
-
-| Tool | Purpose | Safety Level |
-|------|---------|--------------|
-| `list_all_commands` | Complete command reference | Safe |
-| `command_examples` | Usage examples | Safe |
-| `quick_help` | Context-specific help | Safe |
-
-#### 📧 Gmail Operations (4 tools)
-
-| Tool | Purpose | Safety Level |
-|------|---------|--------------|
-| `list_unread` | Fetch top N unread emails | Safe |
-| `summary` | Generate AI summaries of email content | Requires confirmation |
-| `generate_draft` | Create email drafts from natural language | Requires confirmation |
-| `search_email` | Search emails by sender, subject, or content | Safe |
-
-#### 📅 Calendar Operations (3 tools)
-
-| Tool | Purpose | Safety Level |
-|------|---------|--------------|
-| `add_event` | Schedule new calendar events | Requires confirmation |
-| `check_availability` | Check for scheduling conflicts | Safe |
-| `block_focus` | Create focus time blocks | Requires confirmation |
+**Confirmation Required Tools**:
+- File creation and modification
+- System command execution
+- Git operations with repository changes
+- External service integrations
+- Configuration modifications
 
 ### Tool Dependencies System
+
+The dependency injection system provides tools with access to user interface and confirmation mechanisms:
 
 ```python
 @dataclass
 class ToolDeps:
     """Dependencies passed to tools via RunContext"""
-    confirm_action: Optional[Callable]      # User confirmation callback
-    display_tool_status: Optional[Callable] # Progress display callback
+    confirm_action: Optional[Callable[[str, Any, str], Awaitable[bool]]]
+    display_tool_status: Optional[Callable[[str], None]]
+    
+    # Additional context
+    working_directory: Path
+    session_state: Dict[str, Any]
+    user_preferences: Dict[str, Any]
 ```
 
-### Tool Registration
+### Tool Registration and Discovery
 
-Tools are registered in `tools/wrapper.py`:
+Tools are automatically registered and made available to the AI agent:
 
 ```python
-def create_tools():
-    """Create Tool instances for all tools"""
+# Located in: tools/wrapper.py
+
+def create_tools() -> List[Tool]:
+    """Create Tool instances for all available tools"""
     return [
+        # Filesystem tools
         Tool(read_file),
         Tool(write_file),
         Tool(update_file),
-        # ... all 28 tools
+        # ... all 40 tools
     ]
+
+# Agent automatically discovers tool capabilities
+agent = Agent(
+    model=model_name,
+    tools=create_tools(),
+    system_prompt=system_prompt
+)
 ```
 
-## UI System
+## Session Management
+
+### Session State Architecture
+
+The session management system provides comprehensive state persistence and context management:
+
+```python
+# Located in: core/session.py
+
+@dataclass
+class Session:
+    """Global application state management"""
+    # Model and agent management
+    current_model: str = DEFAULT_MODEL
+    agents: Dict[str, Agent] = field(default_factory=dict)
+    
+    # Conversation context
+    messages: List[Message] = field(default_factory=list)
+    session_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    
+    # Working environment
+    working_directory: Path = field(default_factory=Path.cwd)
+    environment_variables: Dict[str, str] = field(default_factory=dict)
+    
+    # User preferences
+    confirmation_enabled: bool = True
+    disabled_confirmations: Set[str] = field(default_factory=set)
+    allowed_commands: Set[str] = field(default_factory=set)
+    
+    # Runtime state
+    current_task: Optional[asyncio.Task] = None
+    task_history: List[Dict] = field(default_factory=list)
+    
+    # Metadata
+    created_at: datetime = field(default_factory=datetime.now)
+    last_activity: datetime = field(default_factory=datetime.now)
+```
+
+### Session Persistence
+
+Sessions can be saved and restored to maintain context across application restarts:
+
+```python
+# Located in: core/persistence.py
+
+class SessionPersistence:
+    """Handles session save/load operations"""
+    
+    @staticmethod
+    def save_session(session: Session, name: str = None) -> str:
+        """Save session to disk with optional name"""
+        session_data = {
+            'session_id': session.session_id,
+            'messages': serialize_messages(session.messages),
+            'working_directory': str(session.working_directory),
+            'user_preferences': {
+                'confirmation_enabled': session.confirmation_enabled,
+                'disabled_confirmations': list(session.disabled_confirmations),
+                'allowed_commands': list(session.allowed_commands)
+            },
+            'metadata': {
+                'created_at': session.created_at.isoformat(),
+                'last_activity': session.last_activity.isoformat(),
+                'message_count': len(session.messages)
+            }
+        }
+        
+        filename = name or f"session_{session.session_id[:8]}"
+        save_path = get_sessions_directory() / f"{filename}.json"
+        
+        with open(save_path, 'w') as f:
+            json.dump(session_data, f, indent=2)
+            
+        return str(save_path)
+    
+    @staticmethod
+    def load_session(identifier: str) -> Session:
+        """Load session by name or ID"""
+        session_file = find_session_file(identifier)
+        
+        with open(session_file, 'r') as f:
+            session_data = json.load(f)
+            
+        session = Session()
+        session.session_id = session_data['session_id']
+        session.messages = deserialize_messages(session_data['messages'])
+        session.working_directory = Path(session_data['working_directory'])
+        
+        # Restore user preferences
+        prefs = session_data['user_preferences']
+        session.confirmation_enabled = prefs['confirmation_enabled']
+        session.disabled_confirmations = set(prefs['disabled_confirmations'])
+        session.allowed_commands = set(prefs['allowed_commands'])
+        
+        return session
+```
+
+### Session Commands
+
+Built-in commands provide session management capabilities:
+
+```python
+# Session management commands
+/sessions --list                    # List all saved sessions
+/sessions --save [name]            # Save current session
+/sessions --load <name_or_id>      # Load specific session
+/sessions --clear                  # Delete all saved sessions
+/sessions --info                   # Show current session information
+```
+
+### Context Management
+
+The session system maintains context across interactions:
+
+**Conversation History**: Complete message history with tool calls and responses
+**Working Directory**: Tracks directory changes and maintains path context
+**User Preferences**: Remembers confirmation settings and command permissions
+**Project Context**: Understands project structure and file relationships
+
+## Safety Framework
+
+### Multi-Layer Safety System
+
+Terminus CLI implements comprehensive safety mechanisms to prevent accidental destructive operations while maintaining workflow efficiency:
+
+### Confirmation System
+
+```python
+# Located in: interface/cli/repl.py
+
+async def confirm_action(title: str, preview: Any, footer: str = None) -> bool:
+    """Multi-level confirmation system"""
+    
+    # Display tool preview panel
+    display_tool_panel(
+        content=preview,
+        title=title,
+        footer=footer or "Confirm this action?"
+    )
+    
+    # Present confirmation options
+    while True:
+        choice = input("Proceed? [y/n/always]: ").lower().strip()
+        
+        if choice in ['y', 'yes']:
+            return True
+        elif choice in ['n', 'no']:
+            return False
+        elif choice == 'always':
+            # Add to disabled confirmations for this session
+            tool_name = extract_tool_name_from_title(title)
+            session.disabled_confirmations.add(tool_name)
+            return True
+        else:
+            print("Please enter 'y' (yes), 'n' (no), or 'always'")
+```
+
+### Command Whitelisting
+
+Safe shell commands are pre-approved for execution without confirmation:
+
+```python
+# Located in: shared/constants.py
+
+DEFAULT_ALLOWED_COMMANDS = {
+    # File operations
+    "ls", "cat", "head", "tail", "file", "stat",
+    
+    # Text processing
+    "grep", "rg", "find", "wc", "sort", "uniq", "diff",
+    
+    # System information
+    "pwd", "echo", "which", "env", "date", "whoami",
+    "ps", "top", "df", "du",
+    
+    # Development tools
+    "git status", "git log", "git diff", "git branch"
+}
+```
+
+### Error Handling and Recovery
+
+Comprehensive error handling with user-friendly messages and recovery options:
+
+```python
+# Located in: shared/utils/error.py
+
+class ErrorHandler:
+    """Centralized error handling with context preservation"""
+    
+    @staticmethod
+    def handle_tool_error(error: Exception, tool_name: str, context: Dict) -> str:
+        """Handle tool execution errors gracefully"""
+        
+        # Extract clean error message
+        clean_message = extract_user_friendly_message(error)
+        
+        # Log detailed error for debugging
+        if should_log_error(error):
+            error_id = log_detailed_error(error, tool_name, context)
+            clean_message += f" (Error ID: {error_id})"
+        
+        # Provide recovery suggestions
+        recovery_suggestions = generate_recovery_suggestions(error, tool_name)
+        if recovery_suggestions:
+            clean_message += f"\n\nSuggestions:\n{recovery_suggestions}"
+            
+        return clean_message
+    
+    @staticmethod
+    def execute_cleanup_on_error(cleanup_functions: List[Callable]):
+        """Execute cleanup functions when errors occur"""
+        for cleanup_func in cleanup_functions:
+            try:
+                cleanup_func()
+            except Exception:
+                pass  # Cleanup errors should not prevent error reporting
+```
+
+### Signal Handling
+
+Graceful handling of interruption signals (Ctrl+C) with proper cleanup:
+
+```python
+# Located in: interface/cli/repl.py
+
+async def handle_sigint():
+    """Handle Ctrl+C interruption gracefully"""
+    
+    if session.current_task:
+        # Cancel running task
+        session.current_task.cancel()
+        
+        try:
+            await session.current_task
+        except asyncio.CancelledError:
+            pass
+            
+        # Clean up task state
+        session.current_task = None
+        
+    # Provide user feedback
+    display_info_panel("Operation cancelled by user")
+    
+    # Preserve session state
+    auto_save_session_if_enabled()
+```
+
+### Data Validation
+
+Input validation and sanitization for all tool parameters:
+
+```python
+def validate_file_path(path: str) -> Tuple[bool, str]:
+    """Validate file path for safety"""
+    
+    # Check for directory traversal attempts
+    if '..' in path or path.startswith('/'):
+        return False, "Path traversal detected"
+    
+    # Validate path format
+    try:
+        validated_path = Path(path).resolve()
+    except Exception:
+        return False, "Invalid path format"
+    
+    # Check permissions
+    if not has_read_permission(validated_path):
+        return False, "Insufficient permissions"
+        
+    return True, str(validated_path)
+```
+## User Interface System
 
 ### Modular UI Architecture
 
+The user interface system provides rich terminal interactions with consistent styling and responsive design:
+
 ```
-ui/
-├── __init__.py     # Main exports and backwards compatibility
-├── core.py         # Banner, spinners, core functionality
-├── colors.py       # Color scheme and styling
-├── formatting.py   # Syntax highlighting, diffs
-├── messages.py     # Standard message types
-└── panels.py       # Rich panel creation and display
+interface/cli/
+├── __main__.py          # Application entry point and CLI setup
+├── commands.py          # Built-in command implementations
+├── repl.py             # Interactive shell and request processing
+└── ui/                 # User interface components
+    ├── core.py         # Core UI functionality and spinners
+    ├── panels.py       # Rich panel creation and management
+    ├── messages.py     # Message formatting and display
+    ├── colors.py       # Color scheme and styling constants
+    └── formatting.py   # Syntax highlighting and content formatting
 ```
 
 ### Panel System
 
-The UI uses a sophisticated panel system for consistent display:
+Rich panels provide consistent visual organization for different content types:
 
 ```python
-# Panel types with specific purposes
-display_agent_panel(content, has_footer)    # AI responses
-display_tool_panel(content, title, footer)  # Tool output/preview
-display_confirmation_panel(content)         # User confirmations
-display_error_panel(message, detail, title) # Error messages
-display_info_panel(content)                 # Information display
+# Located in: interface/cli/ui/panels.py
+
+def display_agent_panel(content: str, has_footer: bool = True):
+    """Display AI agent responses with consistent styling"""
+    panel = Panel(
+        content,
+        title="[cyan]Terminus[/cyan]",
+        border_style="cyan",
+        padding=(1, 2)
+    )
+    console.print(panel)
+
+def display_tool_panel(content: Any, title: str, footer: str = None):
+    """Display tool output with syntax highlighting"""
+    formatted_content = format_tool_output(content)
+    panel = Panel(
+        formatted_content,
+        title=f"[blue]{title}[/blue]",
+        border_style="blue",
+        subtitle=footer if footer else None
+    )
+    console.print(panel)
+
+def display_confirmation_panel(content: Any) -> bool:
+    """Display confirmation panel with user interaction"""
+    panel = Panel(
+        content,
+        title="[yellow]Confirmation Required[/yellow]",
+        border_style="yellow",
+        padding=(1, 2)
+    )
+    console.print(panel)
 ```
 
-### Color Scheme
+### Color Scheme and Styling
+
+Consistent color scheme across all interface components:
 
 ```python
+# Located in: interface/cli/ui/colors.py
+
 class Colors:
-    primary = "cyan"           # Agent responses, main branding
-    success = "green"          # Success messages
-    warning = "yellow"         # Warnings, confirmations
-    error = "red"             # Error messages
+    """Application color constants"""
+    primary = "cyan"           # Agent responses and branding
+    success = "green"          # Success messages and confirmations
+    warning = "yellow"         # Warnings and user confirmations  
+    error = "red"             # Error messages and failures
+    info = "blue"             # Tool output and information
     muted = "bright_black"    # Secondary information
-    tool_data = "blue"        # Tool output data
-    accent = "magenta"        # Highlights, special elements
+    accent = "magenta"        # Special highlights and emphasis
+    
+class Styles:
+    """Rich markup style definitions"""
+    code = "bold bright_white on grey23"
+    file_path = "underline cyan"
+    command = "bold green"
+    parameter = "italic blue"
+```
+
+### Content Formatting
+
+Advanced content formatting with syntax highlighting and intelligent display:
+
+```python
+# Located in: interface/cli/ui/formatting.py
+
+def format_code_content(content: str, language: str = None) -> str:
+    """Apply syntax highlighting to code content"""
+    if language:
+        lexer = get_lexer_by_name(language)
+        formatter = TerminalFormatter()
+        return highlight(content, lexer, formatter)
+    return content
+
+def format_file_diff(original: str, modified: str) -> str:
+    """Create formatted diff display"""
+    diff_lines = unified_diff(
+        original.splitlines(keepends=True),
+        modified.splitlines(keepends=True),
+        fromfile="original",
+        tofile="modified"
+    )
+    return "".join(diff_lines)
+
+def format_directory_tree(path: Path, max_depth: int = 3) -> str:
+    """Generate formatted directory tree visualization"""
+    tree = Tree(f"[bold cyan]{path.name}[/bold cyan]")
+    build_tree_recursive(tree, path, max_depth)
+    return tree
 ```
 
 ### Context-Aware Spacing
 
-The UI system maintains context about previous output types to provide appropriate spacing:
+The UI system maintains awareness of previous output types to provide optimal visual flow:
 
 ```python
-_last_output = None  # "status", "panel", "user_input", or None
+# Located in: interface/cli/ui/core.py
 
-def _prepare_to_print(new_type: str):
-    """Adds blank lines based on context for optimal visual flow"""
+class UIContext:
+    """Manages UI state and context"""
+    
+    def __init__(self):
+        self.last_output_type = None
+        self.needs_spacing = False
+        
+    def prepare_output(self, output_type: str):
+        """Add appropriate spacing based on context"""
+        spacing_rules = {
+            ("panel", "panel"): 1,
+            ("status", "panel"): 0,
+            ("user_input", "panel"): 1,
+            ("error", "panel"): 1
+        }
+        
+        rule_key = (self.last_output_type, output_type)
+        lines_needed = spacing_rules.get(rule_key, 0)
+        
+        if lines_needed > 0:
+            console.print("\n" * lines_needed, end="")
+            
+        self.last_output_type = output_type
 ```
 
-## Request Processing Flow
+### Interactive Components
 
-### Complete User Request Lifecycle
-
-```mermaid
-graph TD
-    A[User Input] --> B[REPL.run()]
-    B --> C{Built-in Command?}
-    C -->|Yes| D[Handle Command (/help, /clear, etc.)]
-    C -->|No| E[Process Request]
-    E --> F[Agent Processing]
-    F --> G[Tool Selection & Planning]
-    G --> H{Confirmation Required?}
-    H -->|Yes| I[Show Tool Preview]
-    I --> J[User Confirmation]
-    J --> K{Approved?}
-    K -->|Yes| L[Execute Tool]
-    K -->|No| M[Cancel Operation]
-    H -->|No| L
-    L --> N[Tool Execution]
-    N --> O[Update Session State]
-    O --> P[Agent Synthesis]
-    P --> Q[Display Result]
-    Q --> R[Ready for Next Input]
-```
-
-### Detailed Processing Steps
-
-#### 1. Input Processing (`repl.py`)
+Rich interactive components for user input and selection:
 
 ```python
-async def _handle_user_request(self, user_input: str):
-    """Process user request with full error handling"""
-    1. Start thinking spinner
-    2. Create async task for request processing
-    3. Handle cancellation (Ctrl+C)
-    4. Display results or errors
-    5. Clean up task state
+def multi_line_input_prompt() -> str:
+    """Multi-line input with syntax highlighting"""
+    lines = []
+    print("Enter your request (Ctrl+D or empty line to finish):")
+    
+    while True:
+        try:
+            line = input("│ " if lines else "┌ ")
+            if not line and lines:
+                break
+            lines.append(line)
+        except EOFError:
+            break
+            
+    return "\n".join(lines)
+
+def selection_prompt(options: List[str], title: str) -> int:
+    """Interactive selection from list of options"""
+    panel = Panel(
+        "\n".join(f"{i+1}. {option}" for i, option in enumerate(options)),
+        title=title,
+        border_style="blue"
+    )
+    console.print(panel)
+    
+    while True:
+        try:
+            choice = int(input("Select option (number): ")) - 1
+            if 0 <= choice < len(options):
+                return choice
+        except ValueError:
+            pass
+        print("Invalid selection. Please enter a valid number.")
 ```
 
-#### 2. Agent Processing (`agent.py`)
+## Request Processing Pipeline
+
+### Complete Request Lifecycle
+
+The request processing pipeline handles user input through a sophisticated multi-stage process:
+
+```
+User Input → REPL Processing → Agent Analysis → Tool Selection → 
+Confirmation → Tool Execution → Result Synthesis → UI Display
+```
+
+### Stage 1: Input Processing
 
 ```python
-async def process_request(message: str):
-    """Main agent processing pipeline"""
-    1. Get or create agent instance
-    2. Prepare message history with context
-    3. Add project guide if available
-    4. Set up tool dependencies
-    5. Iterate through agent stream
-    6. Process each response node
-    7. Return synthesized result
+# Located in: interface/cli/repl.py
+
+async def process_user_input(user_input: str):
+    """Main input processing pipeline"""
+    
+    # Handle built-in commands first
+    if user_input.startswith('/'):
+        return await handle_builtin_command(user_input)
+    
+    # Create async task for AI processing
+    task = asyncio.create_task(process_ai_request(user_input))
+    session.current_task = task
+    
+    try:
+        # Start thinking indicator
+        with thinking_spinner():
+            result = await task
+            
+        # Display results
+        display_agent_panel(result)
+        
+    except asyncio.CancelledError:
+        display_info_panel("Request cancelled by user")
+    except Exception as e:
+        display_error_panel(f"Processing error: {e}")
+    finally:
+        session.current_task = None
 ```
 
-#### 3. Node Processing
+### Stage 2: Agent Analysis
 
-The agent processes different types of response nodes:
+```python
+# Located in: core/agent.py
 
-- **CallToolsNode**: Tool execution requests
-- **TextPart**: Thinking responses or final answers
-- **ToolCallPart**: Specific tool invocations
-- **ToolReturnPart**: Tool execution results
+async def process_ai_request(message: str) -> str:
+    """AI agent request processing"""
+    
+    # Get appropriate agent for current model
+    agent = get_or_create_agent(session.current_model)
+    
+    # Prepare conversation context
+    conversation_history = prepare_message_history()
+    
+    # Add project context if available
+    if project_guide := load_project_guide():
+        conversation_history.insert(0, project_guide)
+    
+    # Set up tool dependencies
+    tool_deps = ToolDeps(
+        confirm_action=confirm_action,
+        display_tool_status=display_status
+    )
+    
+    # Process through agent
+    result_parts = []
+    async for response in agent.run_stream(
+        message, 
+        message_history=conversation_history,
+        deps=tool_deps
+    ):
+        result_parts.extend(await process_response_node(response))
+    
+    # Update session state
+    session.messages.extend(conversation_history)
+    session.last_activity = datetime.now()
+    
+    return synthesize_response(result_parts)
+```
 
-#### 4. Tool Execution
+### Stage 3: Tool Selection and Execution
 
-Each tool receives a `RunContext[ToolDeps]` with:
-- Access to confirmation callbacks
-- Status display capabilities
-- Session state and working directory
-- Error handling context
+```python
+async def process_response_node(node) -> List[str]:
+    """Process individual response nodes from agent"""
+    
+    if isinstance(node, CallToolsNode):
+        return await execute_tool_calls(node.tool_calls)
+    elif isinstance(node, TextPart):
+        return [node.content]
+    else:
+        return [str(node)]
 
-## Configuration System
+async def execute_tool_calls(tool_calls: List[ToolCall]) -> List[str]:
+    """Execute multiple tool calls with confirmation"""
+    results = []
+    
+    for tool_call in tool_calls:
+        # Check if confirmation is needed
+        if tool_requires_confirmation(tool_call.tool_name):
+            if not await request_confirmation(tool_call):
+                results.append(f"Tool {tool_call.tool_name} cancelled by user")
+                continue
+        
+        # Execute tool with error handling
+        try:
+            result = await execute_single_tool(tool_call)
+            results.append(result)
+        except Exception as e:
+            error_msg = handle_tool_error(e, tool_call.tool_name)
+            results.append(error_msg)
+    
+    return results
+```
 
-### Configuration Structure
+### Stage 4: Confirmation Flow
 
+```python
+async def request_confirmation(tool_call: ToolCall) -> bool:
+    """Handle tool confirmation with preview"""
+    
+    # Generate preview of tool operation
+    preview_data = generate_tool_preview(tool_call)
+    
+    # Display confirmation panel
+    display_confirmation_panel(
+        title=f"Execute {tool_call.tool_name}",
+        content=preview_data,
+        footer="This action may modify files or system state"
+    )
+    
+    # Get user decision
+    while True:
+        choice = input("Proceed? [y/n/always/never]: ").lower()
+        
+        if choice in ['y', 'yes']:
+            return True
+        elif choice in ['n', 'no']:
+            return False
+        elif choice == 'always':
+            # Disable confirmations for this tool this session
+            session.disabled_confirmations.add(tool_call.tool_name)
+            return True
+        elif choice == 'never':
+            # Add to permanently disabled confirmations
+            add_to_user_preferences('disabled_confirmations', tool_call.tool_name)
+            return False
+```
+
+### Stage 5: Result Synthesis
+
+```python
+def synthesize_response(result_parts: List[str]) -> str:
+    """Combine tool results into coherent response"""
+    
+    if not result_parts:
+        return "No results to display"
+    
+    if len(result_parts) == 1:
+        return result_parts[0]
+    
+    # Multiple results - create structured summary
+    synthesis = []
+    for i, result in enumerate(result_parts, 1):
+        if result.startswith("Error:"):
+            synthesis.append(f"❌ Step {i}: {result}")
+        else:
+            synthesis.append(f"✅ Step {i}: {result}")
+    
+    return "\n".join(synthesis)
+```
+
+### Error Handling and Recovery
+
+```python
+def handle_processing_error(error: Exception, context: Dict) -> str:
+    """Comprehensive error handling with recovery"""
+    
+    # Categorize error type
+    if isinstance(error, APIError):
+        return handle_api_error(error)
+    elif isinstance(error, ToolError):
+        return handle_tool_error(error, context.get('tool_name'))
+    elif isinstance(error, ValidationError):
+        return handle_validation_error(error)
+    else:
+        return handle_generic_error(error, context)
+
+def handle_api_error(error: APIError) -> str:
+    """Handle AI model API errors"""
+    if error.status_code == 401:
+        return "Authentication failed. Please check your API key configuration."
+    elif error.status_code == 429:
+        return "Rate limit exceeded. Please wait before trying again."
+    elif error.status_code >= 500:
+        return "AI service temporarily unavailable. Please try again later."
+    else:
+        return f"AI service error: {error.message}"
+```
+
+## Configuration Management
+
+### Configuration Architecture
+
+The configuration system provides flexible, hierarchical configuration management with secure credential handling:
+
+```python
+# Located in: infrastructure/config/
+
+@dataclass
+class TerminusConfig:
+    """Main configuration data structure"""
+    default_model: str
+    models: Dict[str, ModelConfig]
+    settings: UserSettings
+    environment: Dict[str, str]
+    
+@dataclass  
+class ModelConfig:
+    """Model-specific configuration"""
+    enabled: bool
+    api_key: Optional[str]
+    base_url: Optional[str]
+    parameters: Dict[str, Any]
+
+@dataclass
+class UserSettings:
+    """User preference settings"""
+    confirmation_enabled: bool
+    auto_save_sessions: bool
+    max_session_history: int
+    allowed_commands: Set[str]
+    disabled_confirmations: Set[str]
+```
+
+### Configuration Files
+
+**Primary Configuration**: `~/.config/terminus.json`
 ```json
 {
   "default_model": "google-gla:gemini-2.0-flash-exp",
-  "env": {
-    "GEMINI_API_KEY": "your-api-key-here"
+  "models": {
+    "google": {
+      "enabled": true,
+      "api_key": "your-gemini-api-key",
+      "parameters": {
+        "temperature": 0.1,
+        "max_tokens": 4096
+      }
+    },
+    "ollama": {
+      "enabled": true,
+      "base_url": "http://localhost:11434/v1",
+      "default_model": "qwen:latest",
+      "parameters": {
+        "temperature": 0.7
+      }
+    }
   },
   "settings": {
+    "confirmation_enabled": true,
+    "auto_save_sessions": true,
+    "max_session_history": 1000,
     "allowed_commands": [
       "ls", "cat", "grep", "find", "pwd", "echo", "which",
       "head", "tail", "wc", "sort", "uniq", "diff", "tree"
-    ]
+    ],
+    "disabled_confirmations": []
   }
 }
 ```
 
-### Configuration Management (`config.py`)
-
-- **Location**: `~/.config/terminus.json`
-- **Validation**: Schema validation and error recovery
-- **Merging**: Deep merge with defaults
-- **Environment**: API key injection into environment variables
-
-### First-Time Setup (`setup.py`)
-
-The setup wizard handles:
-
-1. **Welcome Screen**: Introduction and purpose
-2. **API Key Collection**: Secure password input
-3. **Configuration Creation**: Merge with defaults
-4. **Validation**: Ensure required fields
-5. **Error Recovery**: Backup and reset options
+### Configuration Loading and Validation
 
 ```python
-def run_setup() -> Dict:
-    """Complete setup flow"""
-    1. Check for existing config
-    2. Validate existing config if present
-    3. Handle invalid/corrupted configs
-    4. Create new config if needed
-    5. Return validated configuration
+# Located in: infrastructure/config/loader.py
+
+class ConfigLoader:
+    """Handles configuration loading with validation and merging"""
+    
+    @staticmethod
+    def load_config() -> TerminusConfig:
+        """Load configuration with fallback to defaults"""
+        config_path = get_config_path()
+        
+        if config_path.exists():
+            try:
+                with open(config_path, 'r') as f:
+                    user_config = json.load(f)
+                return merge_with_defaults(user_config)
+            except (json.JSONDecodeError, ValidationError) as e:
+                handle_config_error(e)
+                return create_default_config()
+        else:
+            return run_first_time_setup()
+    
+    @staticmethod
+    def validate_config(config_data: Dict) -> Tuple[bool, List[str]]:
+        """Validate configuration against schema"""
+        errors = []
+        
+        # Validate required fields
+        required_fields = ['default_model', 'models', 'settings']
+        for field in required_fields:
+            if field not in config_data:
+                errors.append(f"Missing required field: {field}")
+        
+        # Validate model configurations
+        for model_name, model_config in config_data.get('models', {}).items():
+            model_errors = validate_model_config(model_name, model_config)
+            errors.extend(model_errors)
+        
+        return len(errors) == 0, errors
 ```
 
-## Safety & Security
-
-### Multi-Layer Safety System
-
-#### 1. Tool Confirmation System
+### First-Time Setup
 
 ```python
-# Tool classification by safety level
-ALLOWED_TOOLS = [
-    "read_file",      # Always safe
-    "find", 
-    "grep",
-    "list_directory"
-]
+# Located in: infrastructure/config/setup.py
 
-# Confirmation flow for destructive operations
-async def confirm(title: str, preview: Any, footer: str = None) -> bool:
-    """Show tool preview and get user confirmation"""
-    1. Display tool data panel
-    2. Show confirmation options
-    3. Handle user choice (y/n/always)
-    4. Update disabled confirmations if "always"
-    5. Return approval status
+class FirstTimeSetup:
+    """Handles initial configuration setup"""
+    
+    def run_setup(self) -> TerminusConfig:
+        """Interactive setup wizard"""
+        
+        display_welcome_screen()
+        
+        # Collect API credentials
+        google_api_key = self.collect_google_api_key()
+        ollama_enabled = self.check_ollama_availability()
+        
+        # Configure preferences
+        settings = self.configure_user_settings()
+        
+        # Create configuration
+        config = TerminusConfig(
+            default_model="google-gla:gemini-2.0-flash-exp",
+            models={
+                "google": ModelConfig(
+                    enabled=bool(google_api_key),
+                    api_key=google_api_key,
+                    parameters={"temperature": 0.1}
+                ),
+                "ollama": ModelConfig(
+                    enabled=ollama_enabled,
+                    base_url="http://localhost:11434/v1",
+                    parameters={"temperature": 0.7}
+                )
+            },
+            settings=settings,
+            environment={}
+        )
+        
+        # Save configuration
+        save_config(config)
+        
+        return config
+    
+    def collect_google_api_key(self) -> Optional[str]:
+        """Securely collect Google API key"""
+        display_info_panel(
+            "Google Gemini API Key Setup",
+            "To use cloud AI models, you need a Google AI API key.\n"
+            "Get one at: https://makersuite.google.com/app/apikey"
+        )
+        
+        while True:
+            api_key = getpass.getpass("Enter your Google API key (or press Enter to skip): ")
+            if not api_key:
+                return None
+            
+            if validate_google_api_key(api_key):
+                return api_key
+            else:
+                print("Invalid API key format. Please try again.")
 ```
 
-#### 2. Command Whitelisting
+### Environment Variable Integration
 
 ```python
-# Predefined safe shell commands
-DEFAULT_ALLOWED_COMMANDS = [
-    "ls", "cat", "grep", "rg", "find", "pwd", "echo", "which",
-    "head", "tail", "wc", "sort", "uniq", "diff", "tree", "file",
-    "stat", "du", "df", "ps", "top", "env", "date", "whoami"
-]
+def setup_environment_variables(config: TerminusConfig):
+    """Set up environment variables for model access"""
+    
+    # Google API key
+    if config.models.get('google', {}).get('api_key'):
+        os.environ['GEMINI_API_KEY'] = config.models['google']['api_key']
+    
+    # Ollama configuration
+    if config.models.get('ollama', {}).get('enabled'):
+        ollama_config = config.models['ollama']
+        os.environ['OLLAMA_BASE_URL'] = ollama_config.get('base_url', 'http://localhost:11434')
+    
+    # Additional environment variables
+    for key, value in config.environment.items():
+        os.environ[key] = value
 ```
 
-#### 3. Error Handling (`utils/error.py`)
+### Configuration Updates
 
 ```python
-class ErrorContext:
-    """Comprehensive error handling with cleanup"""
-    1. Extract clean error messages
-    2. Determine if errors should be logged
-    3. Save detailed logs to temp files
-    4. Provide user-friendly error display
-    5. Execute cleanup callbacks
+def update_configuration(updates: Dict[str, Any]) -> bool:
+    """Update configuration with new values"""
+    try:
+        current_config = load_config()
+        updated_config = deep_merge(current_config, updates)
+        
+        # Validate updated configuration
+        is_valid, errors = validate_config(updated_config)
+        if not is_valid:
+            raise ValidationError(f"Invalid configuration: {', '.join(errors)}")
+        
+        # Save updated configuration
+        save_config(updated_config)
+        
+        # Update runtime environment
+        setup_environment_variables(updated_config)
+        
+        return True
+        
+    except Exception as e:
+        handle_config_update_error(e)
+        return False
 ```
-
-#### 4. Signal Handling
-
-- **Graceful Cancellation**: Proper SIGINT handling
-- **Task Cleanup**: Cancel running operations safely
-- **State Preservation**: Maintain session integrity
-- **User Feedback**: Clear cancellation messages
 
 ## Project Structure
 
+### Clean Architecture Implementation
+
+The project follows clean architecture principles with clear separation of concerns:
+
 ```
 terminus-cli/
-├── pyproject.toml           # Package configuration
-├── README.md               # User documentation
-├── ARCHITECTURE.md         # This file
+├── pyproject.toml
+├── README.md
+├── ARCHITECTURE.md
+│
 ├── src/terminus/
-│   ├── __init__.py         # Package exports
-│   ├── __main__.py         # Application entry point
-│   ├── agent.py            # AI agent orchestration
-│   ├── repl.py             # Main interaction loop
-│   ├── session.py          # Global state management
-│   ├── config.py           # Configuration handling
-│   ├── setup.py            # First-time setup wizard
-│   ├── commands.py         # Built-in slash commands
-│   ├── deps.py             # Tool dependency system
-│   ├── constants.py        # App constants and defaults
-│   ├── tools/              # Tool implementations
-│   │   ├── __init__.py     # Tool exports
-│   │   ├── wrapper.py      # Tool registration
-│   │   ├── read_file.py    # File reading operations
-│   │   ├── write_file.py   # File creation operations
-│   │   ├── update_file.py  # File modification operations
-│   │   ├── run_command.py  # Shell command execution
-│   │   ├── git.py          # Git operations
-│   │   ├── find.py         # File discovery
-│   │   ├── grep.py         # Text search
-│   │   ├── list.py         # Directory listing
-│   │   ├── directory.py    # Directory operations
-│   │   ├── file_discovery.py # Advanced file discovery
-│   │   ├── code_analysis.py # Code analysis tools
-│   │   ├── system_utilities.py # System utilities
-│   │   ├── dev_workflow.py # Development workflow
-│   │   └── help_system.py  # Help and documentation
-│   ├── ui/                 # Rich-based UI system
-│   │   ├── __init__.py     # UI exports
-│   │   ├── core.py         # Banner, spinners, core functions
-│   │   ├── panels.py       # Panel creation and display
-│   │   ├── messages.py     # Message display functions
-│   │   ├── colors.py       # Color schemes and styling
-│   │   └── formatting.py   # Syntax highlighting and formatting
-│   ├── utils/              # Utility modules
-│   │   ├── __init__.py     # Utility exports
-│   │   ├── error.py        # Error handling and logging
-│   │   ├── command.py      # Command parsing utilities
-│   │   ├── input.py        # Multiline input handling
-│   │   ├── logger.py       # Logging configuration
-│   │   └── guide.py        # Project guide loading
+│   ├── __init__.py
+│   │
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── agent.py
+│   │   ├── session.py
+│   │   └── persistence.py
+│   │
+│   ├── infrastructure/
+│   │   ├── __init__.py
+│   │   ├── config/
+│   │   │   ├── __init__.py
+│   │   │   ├── loader.py
+│   │   │   └── setup.py
+│   │   └── models/
+│   │       ├── __init__.py
+│   │       ├── google.py
+│   │       └── ollama.py
+│   │
+│   ├── tools/
+│   │   ├── __init__.py
+│   │   ├── wrapper.py
+│   │   │
+│   │   ├── filesystem/
+│   │   │   ├── __init__.py
+│   │   │   ├── read_file.py
+│   │   │   ├── write_file.py
+│   │   │   ├── update_file.py
+│   │   │   ├── find.py
+│   │   │   ├── grep.py
+│   │   │   ├── list.py
+│   │   │   ├── directory.py
+│   │   │   └── file_discovery.py
+│   │   │
+│   │   ├── development/
+│   │   │   ├── __init__.py
+│   │   │   ├── git.py
+│   │   │   ├── code_analysis.py
+│   │   │   ├── dev_workflow.py
+│   │   │   └── project_automation.py
+│   │   │
+│   │   ├── system/
+│   │   │   ├── __init__.py
+│   │   │   ├── run_command.py
+│   │   │   └── system_utilities.py
+│   │   │
+│   │   ├── integrations/
+│   │   │   ├── __init__.py
+│   │   │   ├── gmail.py
+│   │   │   ├── calendar.py
+│   │   │   └── google_setup.py
+│   │   │
+│   │   └── help/
+│   │       ├── __init__.py
+│   │       └── help_system.py
+│   │
+│   ├── interface/
+│   │   ├── __init__.py
+│   │   └── cli/
+│   │       ├── __init__.py
+│   │       ├── __main__.py
+│   │       ├── commands.py
+│   │       ├── repl.py
+│   │       └── ui/
+│   │           ├── __init__.py
+│   │           ├── core.py
+│   │           ├── panels.py
+│   │           ├── messages.py
+│   │           ├── colors.py
+│   │           └── formatting.py
+│   │
+│   ├── shared/
+│   │   ├── __init__.py
+│   │   ├── constants.py
+│   │   ├── deps.py
+│   │   └── utils/
+│   │       ├── __init__.py
+│   │       ├── error.py
+│   │       ├── validation.py
+│   │       └── file_operations.py
+│   │
 │   └── prompts/
-│       └── system.txt      # Agent system prompt
-├── build/                  # Build artifacts
-└── env/                    # Virtual environment
+│       ├── __init__.py
+│       ├── system.txt
+│       └── model_specific/
+│           ├── google_gemini.txt
+│           └── ollama_qwen.txt
+│
+├── build/
+├── env/
+└── sessions/
+```
 ```
 
-## Key Design Principles
+### Module Dependencies
 
-### 1. Single Agent Architecture
-- **Simplicity**: One intelligent agent instead of multiple specialized agents
-- **Context Retention**: Maintains conversation flow and project understanding
-- **Tool Orchestration**: Agent selects and combines tools as needed
+**Core Layer**: Contains pure business logic with no external dependencies
+- `core/agent.py`: Agent orchestration and workflow management
+- `core/session.py`: Application state and context management
+- `core/persistence.py`: Data serialization and storage
 
-### 2. Tool-First Design
-- **Modularity**: Each capability is a discrete, testable tool
-- **Composability**: Tools can be combined for complex workflows
-- **Extensibility**: New tools can be added without core changes
+**Infrastructure Layer**: Handles external system integrations
+- `infrastructure/config/`: Configuration management and validation
+- `infrastructure/models/`: AI model provider implementations
 
-### 3. Safety by Default
-- **Confirmation System**: Prevents accidental destructive operations
-- **Command Whitelisting**: Only safe shell commands allowed by default
-- **User Control**: Multiple safety override mechanisms
+**Tools Layer**: Implements all application functionality as discrete tools
+- Organized by functional domain (filesystem, development, system, etc.)
+- Each tool is independently testable and composable
+- Clear separation between safe and confirmation-required operations
 
-### 4. Session Awareness
-- **Context Preservation**: Maintains working directory and conversation history
-- **State Management**: Tracks user preferences and ongoing operations
-- **Graceful Recovery**: Handles interruptions and errors cleanly
+**Interface Layer**: Manages user interactions and presentation
+- `interface/cli/`: Command-line interface implementation
+- Rich terminal UI with consistent styling and responsive design
 
-### 5. Natural Language Interface
-- **Intent Recognition**: Understands action vs information requests
-- **Flexible Input**: Users describe goals rather than memorizing commands
-- **Intelligent Planning**: Agent breaks down complex requests automatically
+**Shared Layer**: Common utilities and dependency injection
+- Application constants and configuration
+- Error handling and validation utilities
+- Dependency injection framework for tool execution
 
-### 6. Terminal Native
-- **Shell Integration**: Works with any terminal and shell
-- **Async Design**: Non-blocking operations with proper cancellation
-- **Rich UI**: Beautiful terminal interfaces without external dependencies
-
-### 7. Transparent Operation
-- **Tool Previews**: Shows what will happen before execution
-- **Status Updates**: Real-time feedback on long operations
-- **Error Clarity**: Clear, actionable error messages
-
-## Development Guide
+## Development Guidelines
 
 ### Adding New Tools
 
-1. **Create Tool Function**:
-   ```python
-   async def my_new_tool(ctx: RunContext[ToolDeps], param: str) -> str:
-       """Tool description for the agent."""
-       # Implementation
-       return "Result"
-   ```
+Follow these steps to add new tools to the system:
 
-2. **Register Tool**:
-   ```python
-   # In tools/wrapper.py
-   Tool(my_new_tool)
-   ```
+#### 1. Create Tool Implementation
 
-3. **Import in Tools Module**:
-   ```python
-   # In tools/__init__.py or wrapper.py
-   from .my_module import my_new_tool
-   ```
+```python
+# Example: tools/filesystem/new_tool.py
 
-### Tool Development Guidelines
+async def new_filesystem_tool(ctx: RunContext[ToolDeps], parameter: str) -> str:
+    """
+    Brief description of the tool's purpose for AI agent understanding.
+    
+    This docstring is crucial as the AI agent uses it to determine when
+    and how to use this tool. Be specific about:
+    - What the tool does
+    - What parameters it expects
+    - What it returns
+    - Any side effects or requirements
+    
+    Args:
+        ctx: Runtime context with dependencies (confirmation, status display)
+        parameter: Description of the expected parameter
+        
+    Returns:
+        Result description or error message
+    """
+    try:
+        # Input validation
+        if not parameter:
+            return "Error: Parameter is required"
+        
+        # Tool-specific implementation
+        result = perform_tool_operation(parameter)
+        
+        # Progress updates for long operations
+        if ctx.deps.display_tool_status:
+            ctx.deps.display_tool_status("Processing...")
+        
+        # Confirmation for destructive operations
+        if is_destructive_operation and ctx.deps.confirm_action:
+            confirmed = await ctx.deps.confirm_action(
+                title="Confirm Tool Operation",
+                preview=generate_preview(parameter),
+                footer="This action will modify the file system"
+            )
+            if not confirmed:
+                return "Operation cancelled by user"
+        
+        return f"Successfully completed: {result}"
+        
+    except Exception as e:
+        return f"Error executing tool: {str(e)}"
+```
 
-- **Use Type Hints**: Helps agent understand parameters
-- **Clear Docstrings**: Agent uses these for tool selection
-- **Error Handling**: Return error messages, don't raise exceptions
-- **Confirmation**: Use `ctx.deps.confirm_action` for destructive operations
-- **Status Updates**: Use `ctx.deps.display_tool_status` for progress
+#### 2. Register Tool
 
-### UI Development
+```python
+# Update tools/wrapper.py
 
-- **Consistent Styling**: Use predefined colors and panel types
-- **Context Awareness**: Consider previous output type for spacing
-- **Rich Components**: Leverage Rich library features appropriately
-- **Accessibility**: Ensure good contrast and readable output
+from terminus.tools.filesystem.new_tool import new_filesystem_tool
 
-### Testing
+def create_tools():
+    """Create Tool instances for all tools."""
+    return [
+        # Existing tools...
+        Tool(new_filesystem_tool),
+        # Additional tools...
+    ]
+```
 
-- **Tool Testing**: Each tool should have unit tests
-- **Integration Testing**: Test tool combinations and workflows
-- **Error Scenarios**: Test error handling and recovery
-- **UI Testing**: Verify panel display and formatting
+#### 3. Export Tool
 
-### Configuration
+```python
+# Update tools/filesystem/__init__.py
 
-- **Backward Compatibility**: Maintain config schema compatibility
-- **Validation**: Always validate configuration changes
-- **Defaults**: Provide sensible defaults for new options
-- **Documentation**: Update setup wizard for new configuration options
+from .new_tool import new_filesystem_tool
 
----
+__all__ = [
+    # Existing exports...
+    'new_filesystem_tool',
+]
+```
 
-This architecture enables Terminus to be a powerful, safe, and extensible terminal automation tool that grows with user needs while maintaining simplicity and reliability.
+### Tool Development Best Practices
+
+**Type Hints**: Always use comprehensive type hints for parameters and return values
+```python
+async def tool_function(
+    ctx: RunContext[ToolDeps], 
+    file_path: str, 
+    content: Optional[str] = None
+) -> str:
+```
+
+**Clear Docstrings**: Write detailed docstrings that help the AI agent understand tool usage
+```python
+"""
+Read file contents and return formatted output.
+
+This tool safely reads file contents with automatic encoding detection
+and provides syntax highlighting for code files. It handles large files
+by truncating content and provides error messages for access issues.
+
+Args:
+    ctx: Runtime context for dependency injection
+    file_path: Path to the file to read (relative or absolute)
+    
+Returns:
+    Formatted file contents or error message if file cannot be read
+"""
+```
+
+**Error Handling**: Return user-friendly error messages instead of raising exceptions
+```python
+try:
+    result = perform_operation()
+    return f"Success: {result}"
+except FileNotFoundError:
+    return f"Error: File '{file_path}' not found"
+except PermissionError:
+    return f"Error: Permission denied accessing '{file_path}'"
+except Exception as e:
+    return f"Error: {str(e)}"
+```
+
+**Safety Classification**: Consider whether your tool requires confirmation
+```python
+# For destructive operations, always use confirmation
+if ctx.deps.confirm_action:
+    confirmed = await ctx.deps.confirm_action(
+        title="Destructive Operation",
+        preview=show_what_will_be_affected,
+        footer="This cannot be undone"
+    )
+    if not confirmed:
+        return "Operation cancelled"
+```
+
+
+### Testing Guidelines
+
+**Unit Tests**: Create comprehensive tests for each tool
+```python
+# tests/tools/filesystem/test_new_tool.py
+
+import pytest
+from unittest.mock import AsyncMock, MagicMock
+
+from terminus.tools.filesystem.new_tool import new_filesystem_tool
+from terminus.shared.deps import ToolDeps
+
+@pytest.mark.asyncio
+async def test_new_tool_success():
+    """Test successful tool execution."""
+    # Setup
+    mock_deps = ToolDeps(
+        confirm_action=AsyncMock(return_value=True),
+        display_tool_status=MagicMock()
+    )
+    mock_ctx = MagicMock()
+    mock_ctx.deps = mock_deps
+    
+    # Execute
+    result = await new_filesystem_tool(mock_ctx, "test_parameter")
+    
+    # Assert
+    assert "Successfully completed" in result
+    mock_deps.display_tool_status.assert_called()
+
+@pytest.mark.asyncio
+async def test_new_tool_user_cancellation():
+    """Test tool cancellation by user."""
+    # Setup
+    mock_deps = ToolDeps(
+        confirm_action=AsyncMock(return_value=False),
+        display_tool_status=MagicMock()
+    )
+    mock_ctx = MagicMock()
+    mock_ctx.deps = mock_deps
+    
+    # Execute
+    result = await new_filesystem_tool(mock_ctx, "test_parameter")
+    
+    # Assert
+    assert "cancelled by user" in result
+```
+
+**Integration Tests**: Test tool combinations and workflows
+```python
+@pytest.mark.asyncio
+async def test_tool_workflow():
+    """Test multiple tools working together."""
+    # Test that tools can be chained together effectively
+    pass
+```
+
+### UI Development Guidelines
+
+**Consistent Styling**: Use established color schemes and panel types
+```python
+from terminus.interface.cli.ui.colors import Colors
+from terminus.interface.cli.ui.panels import display_tool_panel
+
+# Use consistent colors
+display_tool_panel(
+    content=formatted_output,
+    title=f"[{Colors.info}]Tool Output[/{Colors.info}]",
+    footer=f"[{Colors.muted}]Operation completed[/{Colors.muted}]"
+)
+```
+
+**Responsive Design**: Consider different terminal sizes and contexts
+```python
+def format_output_for_terminal(content: str, max_width: int = 80) -> str:
+    """Format content to fit terminal width."""
+    lines = content.split('\n')
+    formatted_lines = []
+    
+    for line in lines:
+        if len(line) <= max_width:
+            formatted_lines.append(line)
+        else:
+            # Wrap long lines appropriately
+            wrapped = wrap_line(line, max_width)
+            formatted_lines.extend(wrapped)
+    
+    return '\n'.join(formatted_lines)
+```
+
+### Documentation Standards
+
+**API Documentation**: Document all public interfaces
+**Architecture Decisions**: Record significant design choices
+**User Guides**: Provide clear examples and usage patterns
+**Troubleshooting**: Include common issues and solutions
+
+### Version Control Practices
+
+**Commit Messages**: Use clear, descriptive commit messages
+```
+feat: add new file analysis tool for project insights
+fix: resolve confirmation dialog timeout issue  
+docs: update tool development guidelines
+refactor: reorganize UI components for better maintainability
+```
+
+**Branch Strategy**: Use feature branches for new development
+```
+feature/new-tool-implementation
+bugfix/confirmation-dialog-issue
+docs/architecture-update
+```
+
+**Code Reviews**: All changes should be reviewed for:
+- Code quality and consistency
+- Test coverage and correctness
+- Documentation completeness
+- Security considerations
+- Performance implications
+
+This architecture enables Terminus CLI to maintain high code quality, extensibility, and user experience while supporting rapid development of new features and tools.

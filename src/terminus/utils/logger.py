@@ -2,7 +2,7 @@
 
 import logging
 
-from terminus.session import session
+from terminus.core.session import session
 from terminus.ui.messages import muted as ui_muted
 
 

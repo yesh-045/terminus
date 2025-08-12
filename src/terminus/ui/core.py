@@ -6,8 +6,8 @@ import random
 from rich.console import Console
 from rich.padding import Padding
 
-from terminus.constants import APP_VERSION
-from terminus.session import session
+from terminus.shared.constants import APP_VERSION
+from terminus.core.session import session
 from terminus.ui.colors import colors
 
 console = Console()

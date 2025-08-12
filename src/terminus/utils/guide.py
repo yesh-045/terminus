@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from ..session import Session
+from ..core.session import Session
 
 
 def load_guide(session: Session):
