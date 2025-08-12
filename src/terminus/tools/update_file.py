@@ -3,14 +3,12 @@ import asyncio
 from pydantic_ai import ModelRetry, RunContext
 
 from terminus import ui
-from terminus.deps import ToolDeps
 from terminus.session import session
 
 
 async def update_file(
-    ctx: RunContext[ToolDeps], filepath: str, old_content: str, new_content: str
+    ctx: RunContext, filepath: str, old_content: str, new_content: str
 ) -> str:
-    """Update specific content in a file."""
     # Resolve path relative to session working directory
     resolved_path = session.resolve_path(filepath)
     

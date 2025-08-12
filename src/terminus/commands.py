@@ -10,6 +10,8 @@ from pathlib import Path
 
 from terminus import ui
 from terminus.session import session
+from terminus.models import model_manager
+from terminus.persistence import persistence
 
 log = logging.getLogger(__name__)
 
@@ -69,6 +71,168 @@ async def handle_history():
         ui.bullet(f"{i}. {preview}")
 
 
+async def handle_models():
+    """Handle /models command - show available AI models."""
+    await model_manager.initialize()
+    models = model_manager.list_models()
+    current = model_manager.get_current_model()
+    
+    if not models:
+        ui.warning("No AI models available")
+        return
+        
+    ui.info("Available AI Models")
+    
+    for model in models:
+        status = "✓" if model.available else "✗"
+        local_badge = " [LOCAL]" if model.local else " [API]"
+        current_badge = " [CURRENT]" if current and model.name == current.name else ""
+        
+        ui.bullet(f"{status} {model.display_name}{local_badge}{current_badge}")
+        
+    if current:
+        ui.info(f"Current model: {current.display_name}")
+
+
+async def handle_switch_model(args: list[str]):
+    """Handle /switch command - switch AI model."""
+    if not args:
+        ui.warning("Usage: /switch <model_name>")
+        ui.info("Use /models to see available models")
+        return
+        
+    model_name = args[0]
+    
+    # Allow partial matching
+    await model_manager.initialize()
+    models = model_manager.list_models()
+    
+    # Find exact match first
+    exact_match = next((m for m in models if m.name == model_name), None)
+    if exact_match:
+        success = await model_manager.switch_model(exact_match.name)
+        if success:
+            # Double-check synchronization
+            ui.info(f"Session model: {session.current_model}")
+            ui.info(f"Manager model: {model_manager.current_model}")
+        return
+        
+    # Find partial matches
+    partial_matches = [m for m in models if model_name.lower() in m.name.lower() or model_name.lower() in m.display_name.lower()]
+    
+    if len(partial_matches) == 1:
+        success = await model_manager.switch_model(partial_matches[0].name)
+        if success:
+            # Double-check synchronization
+            ui.info(f"Session model: {session.current_model}")
+            ui.info(f"Manager model: {model_manager.current_model}")
+    elif len(partial_matches) > 1:
+        ui.warning(f"Multiple models match '{model_name}':")
+        for model in partial_matches:
+            ui.bullet(f"{model.name} ({model.display_name})")
+    else:
+        ui.error(f"No model found matching '{model_name}'")
+        ui.info("Use /models to see available models")
+
+
+async def handle_offline():
+    """Handle /offline command - switch to offline mode."""
+    await model_manager.initialize()
+    success = await model_manager.auto_fallback()
+    
+    if success:
+        ui.success("Switched to offline mode with local models")
+    else:
+        ui.warning("No local models available for offline mode")
+        ui.info("Install Ollama and pull models to enable offline mode")
+
+
+async def handle_sessions(args: list[str] = None):
+    """Handle /sessions command - list saved sessions or clear with --clear flag."""
+    args = args or []
+    
+    # Handle --clear flag
+    if "--clear" in args:
+        try:
+            cleared_count = persistence.clear_all_sessions()
+            if cleared_count > 0:
+                ui.success(f"Cleared {cleared_count} saved sessions")
+            else:
+                ui.info("No sessions to clear")
+        except Exception as e:
+            ui.error(f"Failed to clear sessions: {e}")
+        return
+    
+    # Default behavior - list sessions
+    sessions = persistence.list_sessions()
+    
+    if not sessions:
+        ui.info("No saved sessions")
+        return
+        
+    ui.info(f"Saved Sessions ({len(sessions)})")
+    
+    for i, session_data in enumerate(sessions, 1):
+        timestamp = session_data.get("timestamp", "Unknown")
+        name = session_data.get("session_name", "Unnamed")
+        model = session_data.get("model", "Unknown")
+        msg_count = session_data.get("message_count", 0)
+        
+        # Format timestamp
+        try:
+            from datetime import datetime
+            dt = datetime.fromisoformat(timestamp)
+            time_str = dt.strftime("%Y-%m-%d %H:%M")
+        except:
+            time_str = timestamp
+            
+        ui.bullet(f"{i}. {name} - {time_str} ({msg_count} messages, {model})")
+    
+    ui.info("Use '/sessions --clear' to clear all sessions")
+
+
+async def handle_save_session(args: list[str]):
+    """Handle /save command - save current session."""
+    session_name = args[0] if args else None
+    
+    try:
+        saved_name = persistence.save_session(session_name)
+        ui.success(f"Session saved as: {saved_name}")
+    except Exception as e:
+        ui.error(f"Failed to save session: {e}")
+
+
+async def handle_load_session(args: list[str]):
+    """Handle /load command - load saved session."""
+    if not args:
+        ui.warning("Usage: /load <session_name>")
+        ui.info("Use /sessions to see available sessions")
+        return
+        
+    session_name = args[0]
+    
+    try:
+        success = persistence.load_session(session_name)
+        if success:
+            ui.success(f"Loaded session: {session_name}")
+        else:
+            ui.error(f"Session not found: {session_name}")
+    except Exception as e:
+        ui.error(f"Failed to load session: {e}")
+
+
+async def handle_cleanup_sessions():
+    """Handle /cleanup command - clean up unnecessary sessions."""
+    try:
+        deleted_count = persistence.cleanup_sessions()
+        if deleted_count > 0:
+            ui.success(f"Cleaned up {deleted_count} unnecessary sessions")
+        else:
+            ui.info("No sessions to clean up")
+    except Exception as e:
+        ui.error(f"Failed to cleanup sessions: {e}")
+
+
 async def handle_yolo():
     """Handle /yolo command - toggle confirmation mode."""
     session.confirmation_enabled = not session.confirmation_enabled
@@ -96,7 +260,16 @@ async def handle_clear():
 async def handle_status():
     """Handle /status command - show system status."""
     ui.info("System Status")
-    ui.bullet(f"Model: {session.current_model}")
+    ui.bullet(f"Session Model: {session.current_model}")
+    
+    # Check model manager state
+    current_model_info = model_manager.get_current_model()
+    if current_model_info:
+        ui.bullet(f"Model Manager: {current_model_info.display_name}")
+        ui.bullet(f"Model Manager Current: {model_manager.current_model}")
+    else:
+        ui.bullet("Model Manager: Not initialized")
+        
     ui.bullet(f"Messages in history: {len(session.messages)}")
     ui.bullet(f"Confirmations: {'disabled (YOLO mode)' if not session.confirmation_enabled else 'enabled'}")
     ui.bullet(f"Debug mode: {'enabled' if session.debug_enabled else 'disabled'}")
@@ -218,6 +391,13 @@ async def handle_help():
     ui.bullet("/status - Show system status")
     ui.bullet("/version - Show version information")
     ui.bullet("/history - Show conversation history")
+    ui.bullet("/models - List available AI models")
+    ui.bullet("/switch <model> - Switch AI model")
+    ui.bullet("/offline - Switch to offline mode")
+    ui.bullet("/sessions [--clear] - List saved sessions or clear all")
+    ui.bullet("/save [name] - Save current session")
+    ui.bullet("/load <name> - Load saved session")
+    ui.bullet("/cleanup - Clean up unnecessary sessions")
     ui.bullet("/clear - Clear conversation history")
     ui.bullet("/dump - Show conversation history")
     ui.bullet("/yolo - Toggle confirmation mode")
@@ -292,6 +472,13 @@ async def handle_command(user_input: str) -> bool:
         "/help": handle_help,
         "/status": handle_status,
         "/version": handle_version,
+        "/models": handle_models,
+        "/switch": lambda: handle_switch_model(args),
+        "/offline": handle_offline,
+        "/sessions": lambda: handle_sessions(args),
+        "/save": lambda: handle_save_session(args),
+        "/load": lambda: handle_load_session(args),
+        "/cleanup": handle_cleanup_sessions,
     }
 
     if session.debug_enabled:

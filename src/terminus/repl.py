@@ -8,6 +8,8 @@ from terminus.commands import handle_command
 from terminus.session import session
 from terminus.utils.error import ErrorContext
 from terminus.utils.input import create_multiline_prompt_session, get_multiline_input
+from terminus.models import model_manager
+from terminus.persistence import persistence
 
 log = logging.getLogger(__name__)
 
@@ -78,8 +80,17 @@ class Repl:
 
     async def run(self):
         """Runs the main read-eval-print loop."""
+        
+        # Initialize enhanced features
+        try:
+            await model_manager.initialize()
+            persistence.auto_restore()
+            log.debug("Enhanced features initialized")
+        except Exception as e:
+            log.error(f"Failed to initialize enhanced features: {e}")
+        
         ui.info(f"Using model {session.current_model}")
-        ui.success("Welcome to Terminus — clean, simple, and ready to go.")
+        ui.success("Welcome to Terminus — ready to go.")
         prompt_session = create_multiline_prompt_session()
 
         while True:
@@ -100,10 +111,26 @@ class Repl:
                 break
 
             if await handle_command(user_input):
+                # Don't auto-save after slash commands - they don't generate meaningful conversation
                 continue
 
             await self._handle_user_request(user_input)
             signal.signal(signal.SIGINT, self.signal_handler)
+            
+            # Auto-save session after actual AI interactions (not slash commands)
+            try:
+                persistence.auto_save()
+            except Exception as e:
+                log.debug(f"Auto-save failed: {e}")
 
         _restore_default_signal_handler()
+        
+        # Final save before exit (only if session has meaningful content)
+        try:
+            user_messages = [msg for msg in session.messages if msg.get('role') == 'user']
+            if len(user_messages) > 0:
+                persistence.save_session("exit_session")
+        except Exception as e:
+            log.debug(f"Exit save failed: {e}")
+            
         ui.info("Thanks for all the fish.")

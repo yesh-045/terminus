@@ -5,13 +5,12 @@ from pathlib import Path
 from pydantic_ai import RunContext
 
 from terminus import ui
-from terminus.deps import ToolDeps
 from terminus.session import session
 
 log = logging.getLogger(__name__)
 
 
-async def write_file(ctx: RunContext[ToolDeps], filepath: str, content: str) -> str:
+async def write_file(ctx: RunContext, filepath: str, content: str) -> str:
     """Write content to a file."""
     log.debug(f"write_file called with filepath: {filepath}, content length: {len(content)}")
 

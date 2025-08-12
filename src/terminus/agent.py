@@ -1,4 +1,5 @@
 import logging
+import os
 from pathlib import Path
 from typing import Any, Optional
 
@@ -20,6 +21,37 @@ from terminus.utils.error import ErrorContext
 from terminus.utils.guide import get_guide
 
 log = logging.getLogger(__name__)
+
+# Configure Ollama to work with OpenAI-compatible API
+def _setup_ollama_config():
+    """Set up environment variables for Ollama OpenAI compatibility."""
+    # Ollama's OpenAI-compatible API endpoint
+    os.environ["OPENAI_BASE_URL"] = "http://localhost:11434/v1"
+    # Dummy API key (Ollama doesn't require authentication)
+    if "OPENAI_API_KEY" not in os.environ:
+        os.environ["OPENAI_API_KEY"] = "ollama"
+    # Force function calling for OpenAI models
+    os.environ["OPENAI_FORCE_FUNCTION_CALLING"] = "true"
+
+
+def _convert_model_name_for_pydantic_ai(model_name: str) -> str:
+    """Convert our model names to pydantic-ai compatible format."""
+    if model_name.startswith("ollama:"):
+        # For Ollama models, we'll use OpenAI compatibility mode
+        # This requires Ollama to be running with OpenAI API compatibility
+        ollama_model = model_name.replace("ollama:", "")
+        log.debug(f"Converting Ollama model to OpenAI format: {model_name} -> openai:{ollama_model}")
+        return f"openai:{ollama_model}"
+            
+    elif model_name.startswith("google"):
+        # Handle Google models
+        if model_name == "google-gla:gemini-2.0-flash-exp":
+            return "gemini-2.0-flash-exp"
+        elif model_name == "google:gemini-1.5-pro":
+            return "gemini-1.5-pro"
+    
+    # Fallback to original name
+    return model_name
 
 
 def _get_prompt(name: str) -> str:
@@ -72,15 +104,125 @@ async def _process_node(node):
 
 
 def get_or_create_agent():
+    # Set up Ollama configuration for OpenAI compatibility
+    _setup_ollama_config()
+    
     if "default" not in session.agents:
-        base_agent = Agent(
-            model=DEFAULT_MODEL,
-            system_prompt=_get_prompt("system"),
-            tools=TOOLS,
-            deps_type=ToolDeps,
-        )
-        session.agents["default"] = base_agent
+        # Get enhanced system prompt based on current model
+        system_prompt = _get_enhanced_system_prompt()
+        
+        # Convert model name to pydantic-ai format
+        pydantic_model = _convert_model_name_for_pydantic_ai(session.current_model)
+        log.debug(f"Creating agent with model: {session.current_model} -> {pydantic_model}")
+        log.debug(f"Number of tools available: {len(TOOLS)}")
+        log.debug(f"System prompt length: {len(system_prompt)}")
+        
+        # Debug: Print first part of system prompt for Ollama models
+        if session.current_model.startswith("ollama:"):
+            log.debug(f"Using enhanced system prompt for Ollama model: {system_prompt[:200]}...")
+        
+        try:
+            # For Ollama models through OpenAI API, create agent with specific configuration
+            if session.current_model.startswith("ollama:"):
+                base_agent = Agent(
+                    model=pydantic_model,
+                    system_prompt=system_prompt,
+                    tools=TOOLS,
+                    deps_type=ToolDeps,
+                    # Force function calling for Ollama models
+                    model_settings={'tool_choice': 'auto'}
+                )
+            else:
+                base_agent = Agent(
+                    model=pydantic_model,
+                    system_prompt=system_prompt,
+                    tools=TOOLS,
+                    deps_type=ToolDeps,
+                )
+            session.agents["default"] = base_agent
+            log.debug(f"Agent created successfully with {len(TOOLS)} tools")
+        except Exception as e:
+            log.error(f"Failed to create agent with model {pydantic_model}: {e}")
+            # Fallback to default model if Ollama fails
+            if session.current_model.startswith("ollama:"):
+                log.warning(f"Ollama model {session.current_model} failed, falling back to default model")
+                ui.warning(f"Ollama model {session.current_model} not available, using default model")
+                base_agent = Agent(
+                    model=DEFAULT_MODEL,
+                    system_prompt=system_prompt,
+                    tools=TOOLS,
+                    deps_type=ToolDeps,
+                )
+                session.agents["default"] = base_agent
+            else:
+                raise e
+                
+    else:
+        # Update model if it changed
+        agent = session.agents["default"]
+        pydantic_model = _convert_model_name_for_pydantic_ai(session.current_model)
+        
+        if agent.model != pydantic_model:
+            log.debug(f"Updating agent model from {agent.model} to {pydantic_model}")
+            # Create new agent with updated model
+            system_prompt = _get_enhanced_system_prompt()
+            try:
+                # For Ollama models through OpenAI API, create agent with specific configuration
+                if session.current_model.startswith("ollama:"):
+                    base_agent = Agent(
+                        model=pydantic_model,
+                        system_prompt=system_prompt,
+                        tools=TOOLS,
+                        deps_type=ToolDeps,
+                        # Force function calling for Ollama models
+                        model_settings={'tool_choice': 'auto'}
+                    )
+                else:
+                    base_agent = Agent(
+                        model=pydantic_model,
+                        system_prompt=system_prompt,
+                        tools=TOOLS,
+                        deps_type=ToolDeps,
+                    )
+                session.agents["default"] = base_agent
+                log.debug(f"Agent updated successfully with {len(TOOLS)} tools")
+            except Exception as e:
+                log.error(f"Failed to update agent with model {pydantic_model}: {e}")
+                # Keep the existing agent if update fails
+                ui.warning(f"Failed to switch to {session.current_model}, keeping current model")
+            
     return session.agents["default"]
+
+
+def _get_enhanced_system_prompt() -> str:
+    """Get system prompt enhanced for specific models."""
+    
+    # For local models (Qwen, Ollama), use the enhanced prompt that emphasizes tool usage
+    if session.current_model and ("qwen" in session.current_model.lower() or 
+                                  "ollama" in session.current_model.lower()):
+        try:
+            return _get_prompt("local_model_system")
+        except:
+            # Fallback to base prompt with enhancement if file not found
+            base_prompt = _get_prompt("system")
+            local_model_enhancement = """
+
+### CRITICAL: TOOL USAGE IS MANDATORY
+
+You MUST use the provided tools for ALL operations. DO NOT generate code or file contents directly.
+
+**WRONG**: Generating README content in your response
+**RIGHT**: Using write_file tool to create README
+
+**WRONG**: Showing code without reading files
+**RIGHT**: Using read_file to examine files first
+
+ALWAYS use tools for file operations - tool usage is mandatory, not optional."""
+            
+            return base_prompt + local_model_enhancement
+    
+    # For API models, use the standard prompt
+    return _get_prompt("system")
 
 
 def _create_confirmation_callback():
@@ -193,8 +335,80 @@ def _patch_history_on_error(error_message: str):
         session.messages.append(ModelRequest(parts=[tool_return]))
 
 
+async def _try_force_tool_usage(message: str) -> Optional[str]:
+    """Force tool usage for common patterns when Ollama doesn't use function calling properly."""
+    message_lower = message.lower().strip()
+    
+    # Import tools directly for manual execution
+    from terminus.tools.directory import get_current_directory, change_directory
+    from terminus.tools.list import list_directory
+    from terminus.tools.read_file import read_file
+    from terminus.deps import ToolDeps
+    from pydantic_ai import RunContext
+    
+    try:
+        deps = ToolDeps(
+            confirm_action=_create_confirmation_callback(),
+            display_tool_status=_create_display_tool_status_callback(),
+        )
+        ctx = RunContext(deps=deps)
+        
+        # Pattern matching for common requests
+        if any(phrase in message_lower for phrase in ["current directory", "where am i", "pwd", "current folder"]):
+            ui.tool("get_current_directory", "Getting current directory", color="directory")
+            result = await get_current_directory(ctx)
+            return f"Current directory: {result}"
+            
+        elif any(phrase in message_lower for phrase in ["navigate to", "go to", "cd "]):
+            # Extract directory from message
+            for phrase in ["navigate to", "go to", "cd "]:
+                if phrase in message_lower:
+                    parts = message_lower.split(phrase, 1)
+                    if len(parts) > 1:
+                        directory = parts[1].strip().strip('"\'')
+                        if directory:
+                            ui.tool("change_directory", f"Navigating to {directory}", color="directory")
+                            result = await change_directory(ctx, directory)
+                            return result
+                            
+        elif any(phrase in message_lower for phrase in ["list files", "show files", "ls", "dir"]):
+            path = "."
+            # Check if specific path mentioned
+            if " in " in message_lower:
+                parts = message_lower.split(" in ", 1)
+                if len(parts) > 1:
+                    path = parts[1].strip().strip('"\'')
+            ui.tool("list_directory", f"Listing directory {path}", color="directory")
+            result = await list_directory(ctx, path)
+            return f"Contents of {path}:\n{result}"
+            
+        elif any(phrase in message_lower for phrase in ["read ", "show ", "cat "]):
+            # Extract filename
+            for phrase in ["read ", "show ", "cat "]:
+                if phrase in message_lower:
+                    parts = message_lower.split(phrase, 1)
+                    if len(parts) > 1:
+                        filename = parts[1].strip().strip('"\'')
+                        if filename and not any(word in filename for word in ["file", "files", "directory"]):
+                            ui.tool("read_file", f"Reading {filename}", color="file")
+                            result = await read_file(ctx, filename)
+                            return f"Contents of {filename}:\n```\n{result}\n```"
+                            
+    except Exception as e:
+        log.debug(f"Force tool usage failed: {e}")
+        return None
+        
+    return None
+
+
 async def process_request(message: str):
     log.debug(f"Processing request: {message.replace('\n', ' ')[:100]}...")
+
+    # For Ollama models, try to force tool usage for common patterns
+    if session.current_model and session.current_model.startswith("ollama:"):
+        forced_result = await _try_force_tool_usage(message)
+        if forced_result:
+            return forced_result
 
     agent = get_or_create_agent()
 

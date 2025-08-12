@@ -23,7 +23,7 @@ class Session:
     log_file: Optional[str] = None
     project_guide: Optional[str] = None
     # Enhanced: Directory awareness
-    working_directory: Path = field(default_factory=lambda: Path.cwd())
+    working_directory: Optional[Path] = None
 
     def init(self, config: Dict[str, Any], model: str):
         """Initialize the session state."""
@@ -50,10 +50,14 @@ class Session:
 
     def get_cwd(self) -> str:
         """Get the current working directory."""
+        if self.working_directory is None:
+            self.working_directory = Path.cwd()
         return str(self.working_directory)
 
     def resolve_path(self, path: str) -> Path:
         """Resolve a path relative to the session's working directory."""
+        if self.working_directory is None:
+            self.working_directory = Path.cwd()
         path_obj = Path(path)
         if path_obj.is_absolute():
             return path_obj

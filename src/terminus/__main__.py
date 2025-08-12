@@ -20,6 +20,8 @@ from terminus.session import session
 from terminus.setup import run_setup
 from terminus.utils.guide import load_guide
 from terminus.utils.logger import setup_logging
+from terminus.models import model_manager
+from terminus.persistence import persistence
 
 app = typer.Typer(help=f"{APP_NAME} - Your agentic CLI developer")
 console = Console()

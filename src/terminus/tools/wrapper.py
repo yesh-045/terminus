@@ -38,6 +38,9 @@ from terminus.tools.gmail import list_unread, summary, generate_draft, search_em
 from terminus.tools.calendar import add_event, check_availability, block_focus
 from terminus.tools.google_setup import google_auth_status, google_auth_setup, google_auth_revoke
 
+# Import project automation tools
+from terminus.tools.project_automation import generate_project_readme, analyze_code_for_refactoring
+
 
 def create_tools():
     """Create Tool instances for all tools."""
@@ -87,4 +90,7 @@ def create_tools():
         Tool(google_auth_status),
         Tool(google_auth_setup),
         Tool(google_auth_revoke),
+        # Project automation tools
+        Tool(generate_project_readme),
+        Tool(analyze_code_for_refactoring),
     ]

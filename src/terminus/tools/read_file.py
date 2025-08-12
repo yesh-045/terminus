@@ -1,14 +1,12 @@
 import logging
 
 from pydantic_ai import RunContext
-
-from terminus.deps import ToolDeps
 from terminus.session import session
 
 log = logging.getLogger(__name__)
 
 
-async def read_file(ctx: RunContext[ToolDeps], filepath: str) -> str:
+async def read_file(ctx: RunContext, filepath: str) -> str:
     """Read the contents of a file."""
     log.debug(f"read_file called with filepath: {filepath}")
 
