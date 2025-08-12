@@ -90,6 +90,14 @@ terminus
 > convert all .csv files to .json format
 > generate a report of file types and sizes
 > merge all markdown files into a single document
+
+# 📧 Email & Calendar Management
+> show me my 10 most recent unread emails
+> summarize the email with subject "Project Update"
+> draft a reply to John thanking him for the update
+> schedule a 1-hour meeting with the team for tomorrow at 2pm
+> check if I'm free next Tuesday between 10am-12pm
+> block 2 hours of focus time for deep work tomorrow morning
 ```
 
 
@@ -112,7 +120,7 @@ Instead of memorizing commands, just describe what you want:
 - **"find and fix all TODO comments"** → Code maintenance workflows
 - **"optimize this directory structure"** → File organization assistance
 
-## Enhanced Tools Available (28 total)
+## Enhanced Tools Available (38 total)
 
 ### 📁 File & Directory Operations
 1. **read_file** - Read and analyze file contents  
@@ -151,6 +159,22 @@ Instead of memorizing commands, just describe what you want:
 26. **list_all_commands** - Complete command reference  
 27. **command_examples** - Practical usage examples  
 28. **quick_help** - Context-specific help and guidance  
+
+### 📧 Gmail Operations
+29. **list_unread** - Fetch and display unread emails
+30. **summary** - Generate AI summaries of email content
+31. **generate_draft** - Create email drafts from natural language
+32. **search_email** - Search emails by sender, subject, or content
+
+### 📅 Calendar Operations  
+33. **add_event** - Schedule new calendar events
+34. **check_availability** - Check for scheduling conflicts
+35. **block_focus** - Create focus time blocks in calendar
+
+### 🔧 Google API Setup
+36. **google_auth_status** - Check Google API authentication status
+37. **google_auth_setup** - Set up Google API credentials and OAuth
+38. **google_auth_revoke** - Revoke Google API access  
 
 
 ## Requirements

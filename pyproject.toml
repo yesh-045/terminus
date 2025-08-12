@@ -12,6 +12,14 @@ dependencies = [
     "rich",
     "typer",
     "prompt_toolkit",
+    # Google API dependencies
+    "google-auth",
+    "google-auth-oauthlib",
+    "google-auth-httplib2", 
+    "google-api-python-client",
+    # Additional dependencies for Gmail/Calendar features
+    "python-dateutil",
+    "requests",
 ]
 
 [project.scripts]

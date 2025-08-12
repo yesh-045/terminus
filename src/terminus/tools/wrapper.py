@@ -33,6 +33,11 @@ from terminus.tools.help_system import (
     quick_help,
 )
 
+# Import Gmail and Calendar tools
+from terminus.tools.gmail import list_unread, summary, generate_draft, search_email
+from terminus.tools.calendar import add_event, check_availability, block_focus
+from terminus.tools.google_setup import google_auth_status, google_auth_setup, google_auth_revoke
+
 
 def create_tools():
     """Create Tool instances for all tools."""
@@ -69,4 +74,17 @@ def create_tools():
         Tool(list_all_commands),
         Tool(command_examples),
         Tool(quick_help),
+        # Gmail tools
+        Tool(list_unread),
+        Tool(summary),
+        Tool(generate_draft),
+        Tool(search_email),
+        # Calendar tools
+        Tool(add_event),
+        Tool(check_availability),
+        Tool(block_focus),
+        # Google API setup tools
+        Tool(google_auth_status),
+        Tool(google_auth_setup),
+        Tool(google_auth_revoke),
     ]

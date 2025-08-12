@@ -24,12 +24,33 @@ def validate_json_file(config_path: Path) -> Optional[Dict]:
 def collect_api_keys() -> Dict[str, str]:
     """Collect API keys from user input."""
     console.print("\n[bold]API Keys Configuration[/bold]\n")
-    console.print("Enter your Gemini API key:\n")
-
+    
     api_keys = {}
+    
+    # Gemini API Key
+    console.print("Enter your Gemini API key:")
     value = Prompt.ask("Google Gemini API Key", password=True, default="")
     if value:
         api_keys["GEMINI_API_KEY"] = value
+
+    # Google API Credentials (optional)
+    console.print("\n[bold]Google Services (Gmail & Calendar) - Optional[/bold]")
+    console.print("To enable Gmail and Calendar features, you need Google API credentials.")
+    console.print("Get them from: https://console.developers.google.com")
+    
+    setup_google = Confirm.ask("Set up Google API credentials now?", default=False)
+    if setup_google:
+        client_id = Prompt.ask("Google OAuth2 Client ID", default="")
+        if client_id:
+            api_keys["GOOGLE_CLIENT_ID"] = client_id
+            
+        client_secret = Prompt.ask("Google OAuth2 Client Secret", password=True, default="")
+        if client_secret:
+            api_keys["GOOGLE_CLIENT_SECRET"] = client_secret
+            
+        if client_id and client_secret:
+            console.print("[green]✓ Google API credentials configured[/green]")
+            console.print("Note: You'll complete OAuth setup when first using Gmail/Calendar features.")
 
     return api_keys
 
