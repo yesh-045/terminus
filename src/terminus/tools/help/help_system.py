@@ -50,12 +50,11 @@ async def list_all_commands(ctx: RunContext[ToolDeps]) -> str:
                 ("create_project_template", "Create new project from template", "create_project_template('my_project', 'python')"),
             ],
             
-            "Git & Development": [
-                ("git_status_enhanced", "Enhanced git status with visual formatting", "git_status_enhanced()"),
-                ("git_add", "Add files to git staging area", "git_add('file.py')"),
-                ("git_commit", "Commit staged changes", "git_commit('commit message')"),
-                ("quick_commit", "Quick git commit with optional add all", "quick_commit('fix bug', add_all=True)"),
+            "Development Tools": [
                 ("package_info", "Display package/project information", "package_info('.')"),
+                ("search_todos", "Find TODO, FIXME, and HACK comments", "search_todos('.')"),
+                ("summarize_code", "Analyze and explain code structure", "summarize_code('main.py')"),
+                ("analyze_project_structure", "Comprehensive project overview", "analyze_project_structure('.')"),
             ],
             
             "Execution & Workflow": [
@@ -132,13 +131,13 @@ async def command_examples(ctx: RunContext[ToolDeps], category: str = "all") -> 
                 ]
             },
             
-            "git_workflow": {
-                "title": "Git Workflow Examples",
+            "development_workflow": {
+                "title": "Development Workflow Examples",
                 "scenarios": [
-                    ("Check repository status", "git_status_enhanced()", "Shows enhanced git status with colors"),
-                    ("Quick commit all changes", "quick_commit('Fix typos', add_all=True)", "Adds all changes and commits with message"),
-                    ("Stage specific file", "git_add('src/main.py')", "Stages main.py for commit"),
+                    ("Search for TODOs", "search_todos('.')", "Find TODO, FIXME, and HACK comments"),
+                    ("Analyze project structure", "analyze_project_structure('.')", "Get comprehensive project overview"),
                     ("View project info", "package_info('.')", "Shows package.json, pyproject.toml, etc. info"),
+                    ("Summarize code", "summarize_code('main.py')", "Analyze and explain code structure"),
                 ]
             },
             
@@ -159,8 +158,8 @@ async def command_examples(ctx: RunContext[ToolDeps], category: str = "all") -> 
                      "change_directory('/projects') → create_project_template('new_app', 'python') → change_directory('new_app')", 
                      "Complete project creation and navigation"),
                     ("Code review workflow", 
-                     "git_status_enhanced() → search_todos('.') → summarize_code('main.py')", 
-                     "Review changes, find TODOs, analyze main code"),
+                     "search_todos('.') → summarize_code('main.py') → analyze_project_structure('.')", 
+                     "Find TODOs, analyze code, review project structure"),
                     ("Cleanup workflow", 
                      "find_large_files('.') → clean_temp_files('.', dry_run=True) → clean_temp_files('.', dry_run=False)", 
                      "Find large files, preview cleanup, then execute"),
@@ -245,15 +244,15 @@ async def quick_help(ctx: RunContext[ToolDeps], topic: str = "overview") -> str:
 
 [{colors.accent}]Key Features:[/{colors.accent}]
 • Session-aware file operations (all paths relative to current dir)
-• Enhanced Git workflow with visual status
 • Code analysis and project insights
 • System utilities and cleanup tools
+• Email and calendar integration
 
 [{colors.accent}]Quick Start:[/{colors.accent}]
 1. [{colors.command}]system_info()[/{colors.command}] - Check your environment
 2. [{colors.command}]analyze_project_structure('.')[/{colors.command}] - Understand current project
-3. [{colors.command}]git_status_enhanced()[/{colors.command}] - Check repository status
-4. [{colors.command}]search_todos('.')[/{colors.command}] - Find pending work
+3. [{colors.command}]search_todos('.')[/{colors.command}] - Find pending work
+4. [{colors.command}]package_info('.')[/{colors.command}] - View project information
 
 [{colors.info}]Use [{colors.command}]quick_help('topic')[/{colors.command}] for specific help topics[/{colors.info}]""",
 
@@ -276,23 +275,18 @@ async def quick_help(ctx: RunContext[ToolDeps], topic: str = "overview") -> str:
 
 [{colors.info}]All paths are relative to current session directory[/{colors.info}]""",
 
-            "git": f"""[{colors.accent}]Git Workflow Commands[/{colors.accent}]
+            "development": f"""[{colors.accent}]Development Tools[/{colors.accent}]
 
-[{colors.accent}]Status & Information:[/{colors.accent}]
-• [{colors.command}]git_status_enhanced()[/{colors.command}] - Enhanced visual git status
+[{colors.accent}]Project Information:[/{colors.accent}]
 • [{colors.command}]package_info('.')[/{colors.command}] - Show project package info
-
-[{colors.accent}]Staging & Committing:[/{colors.accent}]
-• [{colors.command}]git_add('file.py')[/{colors.command}] - Stage specific file
-• [{colors.command}]git_commit('message')[/{colors.command}] - Commit staged changes
-• [{colors.command}]quick_commit('message', add_all=True)[/{colors.command}] - Add all and commit
-
-[{colors.accent}]Development Workflow:[/{colors.accent}]
-• [{colors.command}]search_todos('.')[/{colors.command}] - Find TODO/FIXME comments
 • [{colors.command}]analyze_project_structure('.')[/{colors.command}] - Project overview
-• [{colors.command}]summarize_code('file.py')[/{colors.command}] - Analyze specific file
 
-[{colors.info}]Git commands work from current session directory[/{colors.info}]""",
+[{colors.accent}]Code Analysis:[/{colors.accent}]
+• [{colors.command}]search_todos('.')[/{colors.command}] - Find TODO/FIXME comments
+• [{colors.command}]summarize_code('file.py')[/{colors.command}] - Analyze specific file
+• [{colors.command}]analyze_code_for_refactoring('.')[/{colors.command}] - Refactoring suggestions
+
+[{colors.info}]Development tools work from current session directory[/{colors.info}]""",
 
             "analysis": f"""[{colors.accent}]Code Analysis & Insights[/{colors.accent}]
 

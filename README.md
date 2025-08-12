@@ -4,47 +4,40 @@ An advanced terminal automation system powered by AI for intelligent workflow au
 
 ## Overview
 
-Terminus CLI is a sophisticated command-line tool that transforms terminal interactions through AI-powered automation. It serves as an intelligent assistant capable of understanding natural language commands and executing complex multi-step operations across diverse domains including development workflows, system administration, and productivity management.
+Terminus CLI is a command-line AI assistant that helps automate common tasks through natural language commands. It provides file operations, system utilities, and productivity tools while maintaining safety through confirmation prompts for destructive operations.
 
-Built with a modular architecture, Terminus CLI features:
+Key features:
 - **Multi-Model AI Support**: Google Gemini and local Ollama model integration
-- **Terminal-native Design**: Compatible with any shell environment and operating system
-- **Language-agnostic Processing**: Handles any file type, project structure, or technology stack
-- **Persistent Context Management**: Maintains conversation history and project understanding across sessions
-- **Comprehensive Safety Framework**: Multi-layer confirmation system for destructive operations
-- **Extensible Tool Architecture**: 40+ specialized tools organized into logical categories
+- **Terminal-native Design**: Works in any shell environment
+- **File Operations**: Read, write, search, and organize files safely
+- **Session Management**: Maintains conversation history across sessions
+- **Safety Framework**: Confirmation prompts for destructive operations
+- **Extensible Tools**: 35+ specialized tools for common tasks
 
 ## Core Capabilities
 
-### AI-Powered Automation
-- **Natural Language Processing**: Converts plain English descriptions into executable workflows
-- **Intelligent Planning**: Breaks down complex requests into optimized tool sequences
-- **Context-Aware Decision Making**: Leverages conversation history and project state for informed responses
-- **Multi-Step Orchestration**: Coordinates complex operations across multiple tools and systems
+### File Operations
+- **File Management**: Read, write, and modify files with safety confirmations
+- **Search and Discovery**: Find files by name, content, or type across directories
+- **Directory Navigation**: Browse and organize directory structures
+- **Content Analysis**: Analyze code structure and generate documentation
 
-### Development Workflow Integration
-- **Git Operations**: Enhanced version control with intelligent staging, committing, and status reporting
-- **Code Analysis**: Automated code review, documentation generation, and refactoring suggestions
-- **Project Scaffolding**: Template-based project creation with best practice implementations
-- **Testing Integration**: Automated test discovery, execution, and failure analysis
-
-### System Administration
-- **File System Management**: Intelligent file operations with pattern matching and bulk processing
-- **System Monitoring**: Resource usage analysis, performance metrics, and health diagnostics
-- **Cleanup Operations**: Automated temporary file removal and disk space optimization
-- **Configuration Management**: Environment setup and configuration validation
+### System Utilities
+- **Command Execution**: Run shell commands with safety validation
+- **System Information**: Display system metrics and resource usage
+- **File Cleanup**: Remove temporary files and optimize storage usage
+- **Process Management**: Monitor and manage running processes
 
 ### Productivity Tools
-- **Email Management**: Gmail integration for reading, searching, and drafting responses
-- **Calendar Operations**: Event scheduling, availability checking, and focus time blocking
-- **Documentation Generation**: Automated README creation and project documentation
-- **Task Automation**: Custom workflow creation for repetitive operations
+- **Email Integration**: Gmail operations for reading and managing messages
+- **Calendar Management**: Schedule events and check availability
+- **Project Documentation**: Generate README files and project documentation
+- **Code Analysis**: Review code structure and suggest improvements
 
 ## Installation
 
 ### Prerequisites
 - **Python 3.10 or higher**: Modern Python with asyncio support
-- **Git**: Version control system (optional but recommended)
 - **API Access**: Google Gemini API key for cloud AI models
 - **Local Models**: Ollama installation for offline AI capabilities (optional)
 
@@ -72,7 +65,7 @@ pip install terminus-cli
 For contributors and advanced users requiring source access:
 
 ```bash
-git clone https://github.com/yesh-045/terminus-cli.git
+# Download the source code
 cd terminus-cli
 python -m venv env
 
@@ -123,64 +116,44 @@ Configuration is stored in `~/.config/terminus.json` and can be manually edited:
 ## Quick Start Guide
 
 ### Basic Usage
-Launch Terminus CLI and begin natural language interaction:
+Start Terminus CLI and begin with simple commands:
 
 ```bash
 terminus
 ```
 
-### Example Workflows
+### Example Commands
 
-#### Project Analysis and Management
+#### File Operations
 ```
-> analyze this project structure and suggest improvements
-> find all TODO comments and create a comprehensive task list
-> generate a detailed README file for this project
-> identify the largest files consuming disk space
-```
-
-#### Development Operations
-```
-> run the test suite and analyze any failures
-> create a new Python project with modern tooling setup
-> review the codebase and suggest refactoring opportunities
-> stage all modified files and commit with descriptive message
+> read the config file and show me its contents
+> find all Python files in this directory
+> create a backup copy of important.txt
+> show me all files larger than 10MB
 ```
 
-#### File System Management
+#### System Tasks
 ```
-> create incremental backups of all Python files to backup directory
-> clean up temporary files and cache directories recursively
-> organize image files by creation date into yearly folders
-> find and remove duplicate files in the Downloads directory
-```
-
-#### System Administration
-```
-> check comprehensive system health including disk usage
-> update all git repositories in current directory tree
-> analyze log files for error patterns and anomalies
-> optimize directory structure for better organization
+> check system disk usage and memory
+> clean up temporary files safely
+> show me what processes are using the most CPU
+> list all installed software packages
 ```
 
-#### Email and Calendar Integration
+#### Productivity
 ```
-> show my 10 most recent unread emails with priority indicators
-> summarize the email thread about "Project Milestone Review"
-> draft a professional reply thanking the team for their contributions
-> schedule a 90-minute planning meeting for next Tuesday at 2pm
-> check my availability for Thursday afternoon between 1-5pm
-> block 3 hours of focused development time tomorrow morning
+> check my recent unread emails
+> schedule a meeting for tomorrow at 2pm
+> generate documentation for this project
+> analyze this code file for potential improvements
 ```
 
 ### Session Management
-Terminus CLI maintains persistent context across conversations:
-
 ```
-> save current session for later continuation
-> load previous session from yesterday's project work
-> clear conversation history and start fresh
-> show session statistics and message count
+> save this session for later
+> load my previous work session
+> clear conversation history
+> show session information
 ```
 
 
@@ -219,63 +192,92 @@ Primary interaction through conversational commands:
 - **"find and resolve all TODO comments in the codebase"** - Code maintenance
 - **"optimize this directory structure for better organization"** - File organization
 
-## Available Tools (40 Total)
+## Available Tools
 
-Terminus CLI provides a comprehensive suite of specialized tools organized into logical categories:
+Terminus CLI includes these built-in capabilities:
 
-### File System Operations (10 tools)
-**Core file and directory management capabilities**
+### File Management
+- Read and write text files
+- Create directory structures  
+- Search and filter files
+- File compression and archiving
 
-| Tool | Function | Safety Level |
-|------|----------|--------------|
-| `read_file` | Read and analyze file contents with syntax highlighting | Safe |
-| `write_file` | Create new files with intelligent content generation | Confirmation Required |
-| `update_file` | Modify existing files with precision editing | Confirmation Required |
-| `list_directory` | Browse directories with enhanced tree visualization | Safe |
-| `find` | Search files by name patterns with advanced filtering | Safe |
-| `grep` | Search text content across files with context | Safe |
-| `find_by_extension` | Locate files by type with .gitignore awareness | Safe |
-| `list_extensions` | Catalog all file types present in project | Safe |
-| `change_directory` | Navigate with session-aware path management | Safe |
-| `get_current_directory` | Display current working directory | Safe |
+### System Operations
+- Monitor system resources
+- Manage processes
+- Check disk usage
+- Clean temporary files
 
-### Development Workflow (8 tools)
-**Git operations and project management**
+### Communication
+- Send and receive emails
+- Calendar operations
+- Meeting scheduling
 
-| Tool | Function | Safety Level |
-|------|----------|--------------|
-| `git_add` | Stage files with intelligent selection preview | Confirmation Required |
-| `git_commit` | Commit changes with automated message generation | Confirmation Required |
-| `git_status_enhanced` | Enhanced visual git status with change summary | Safe |
-| `quick_commit` | Streamlined commit workflow for rapid iteration | Confirmation Required |
-| `summarize_code` | Analyze and explain code structure and patterns | Safe |
-| `analyze_project_structure` | Comprehensive project architecture overview | Safe |
-| `search_todos` | Locate TODO, FIXME, and HACK comments | Safe |
-| `package_info` | Display project metadata and dependencies | Safe |
+### Text Processing
+- Generate documentation
+- Analyze and summarize content
+- Format and convert text
+- Search within files
 
-### System Utilities (5 tools)
-**System administration and resource management**
+### Network Operations
+- Web content retrieval
+- Download files
+- Check connectivity
 
-| Tool | Function | Safety Level |
-|------|----------|--------------|
-| `run_command` | Execute shell commands with safety validation | Confirmation Required |
-| `run_in_directory` | Execute commands in specific directory contexts | Confirmation Required |
-| `system_info` | Comprehensive system information and diagnostics | Safe |
-| `find_large_files` | Locate large files for storage optimization | Safe |
-| `clean_temp_files` | Remove temporary and cache files safely | Confirmation Required |
+### Development Tools
+- Code analysis
+- Project structure review
+- Test execution
+- Documentation generation
 
-### Analysis and Discovery (4 tools)
-**Project analysis and code intelligence**
+## Tool Categories
 
-| Tool | Function | Safety Level |
-|------|----------|--------------|
-| `quick_stats` | File and directory statistics with metrics | Safe |
-| `create_project_template` | Generate project scaffolding with best practices | Confirmation Required |
-| `generate_project_readme` | AI-powered README generation from codebase | Safe |
-| `analyze_code_for_refactoring` | Code quality analysis with improvement suggestions | Safe |
+### Essential Operations
+Core functionality for daily tasks:
+- File operations (create, read, write, delete)
+- Directory management
+- System monitoring
+- Process management
 
-### Help and Documentation (3 tools)
-**User assistance and guidance**
+### Safety Features
+Built-in safety mechanisms:
+- Confirmation prompts for destructive operations
+- Backup creation before modifications
+- Operation logging and audit trails
+- Safe mode for automated operations
+## Safety and Security
+
+### Operation Safety
+- Confirmation prompts for file modifications
+- Backup creation before destructive operations
+- Operation logging for audit trails
+- Safe mode for automated tasks
+
+### Privacy Protection
+- Local processing when possible
+- Secure credential storage
+- No data sharing without consent
+- Session data encryption
+
+## Technical Features
+
+### Multi-Model Support
+- Google Gemini integration
+- Local Ollama support
+- Model switching capabilities
+- Fallback model handling
+
+### Session Management
+- Persistent conversation context
+- Save and restore sessions
+- Message history management
+- Cross-session continuity
+
+### Smart Execution
+- Intelligent tool selection
+- Context-aware responses
+- Error handling and recovery
+- Performance optimization
 
 | Tool | Function | Safety Level |
 |------|----------|--------------|
@@ -289,101 +291,10 @@ Terminus CLI provides a comprehensive suite of specialized tools organized into 
 | Tool | Function | Safety Level |
 |------|----------|--------------|
 | `list_unread` | Fetch and display unread emails with metadata | Safe |
-| `summary` | Generate AI-powered email content summaries | Safe |
-| `generate_draft` | Create email drafts from natural language input | Confirmation Required |
-| `search_email` | Search emails by sender, subject, or content | Safe |
+## Configuration
 
-### Calendar Operations (3 tools)
-**Schedule management and time blocking**
+Terminus CLI stores configuration in `~/.config/terminus.json`:
 
-| Tool | Function | Safety Level |
-|------|----------|--------------|
-| `add_event` | Schedule new calendar events with smart parsing | Confirmation Required |
-| `check_availability` | Check for scheduling conflicts and free time | Safe |
-| `block_focus` | Create focus time blocks for productive work | Confirmation Required |
-
-### Google API Management (3 tools)
-**Authentication and service configuration**
-
-| Tool | Function | Safety Level |
-|------|----------|--------------|
-| `google_auth_status` | Check Google API authentication status | Safe |
-| `google_auth_setup` | Configure Google API credentials and OAuth flow | Confirmation Required |
-| `google_auth_revoke` | Revoke Google API access and clear credentials | Confirmation Required |  
-
-
-## Multi-Model AI Support
-
-Terminus CLI supports multiple AI providers for different use cases and requirements:
-
-### Google Gemini Integration
-- **Model**: Gemini 2.0 Flash Experimental
-- **Strengths**: Advanced reasoning, code analysis, complex planning
-- **Use Cases**: Complex development tasks, comprehensive analysis, multi-step workflows
-- **Requirements**: Google AI API key
-
-### Ollama Local Models
-- **Offline Operation**: Complete functionality without internet connectivity
-- **Privacy**: All processing occurs locally on your machine
-- **Supported Models**: Qwen, Llama, CodeLlama, and other Ollama-compatible models
-- **Requirements**: Ollama installation and model downloads
-
-### Model Selection
-```
-> switch to google gemini for complex analysis
-> use local ollama qwen model for offline work
-> show available models and capabilities
-> set default model for this session
-```
-
-## Advanced Features
-
-### Session Persistence
-- **Auto-save**: Automatic session preservation across application restarts
-- **Named Sessions**: Save and load specific project contexts
-- **History Management**: Comprehensive conversation history with search
-- **State Recovery**: Restore working directory and preferences
-
-### Safety Framework
-- **Multi-layer Confirmation**: Preview and approve destructive operations
-- **Command Whitelisting**: Predefined safe shell commands
-- **User Override**: Flexible safety configuration per tool
-- **Error Recovery**: Graceful handling of failures with cleanup
-
-### Project Intelligence
-- **Context Awareness**: Understands project structure and conventions
-- **Technology Detection**: Automatically identifies languages and frameworks
-- **Best Practice Enforcement**: Suggests improvements following industry standards
-- **Documentation Generation**: Creates comprehensive project documentation
-
-### Integration Ecosystem
-- **Git Workflow**: Enhanced version control with intelligent operations
-- **Google Services**: Gmail and Calendar integration for productivity
-- **Shell Environment**: Native terminal integration across platforms
-- **File System**: Advanced file operations with pattern matching
-
-## System Requirements
-
-### Core Dependencies
-- **Python 3.10+**: Modern Python runtime with full asyncio support
-- **Terminal Environment**: Compatible with PowerShell, Command Prompt, Bash, Zsh
-- **Network Access**: Required for cloud AI models and Google API integration
-- **Disk Space**: Minimal footprint with optional local model storage
-
-### Optional Components
-- **Git**: Version control operations and repository management
-- **Ollama**: Local AI model runtime for offline functionality
-- **Google APIs**: Enhanced email and calendar integration
-- **Text Editors**: Integration with VS Code, Vim, and other editors
-
-## Configuration Management
-
-### Configuration Location
-Configuration files are stored in the user's home directory:
-- **Windows**: `%USERPROFILE%\.config\terminus.json`
-- **macOS/Linux**: `~/.config/terminus.json`
-
-### Configuration Structure
 ```json
 {
   "default_model": "google-gla:gemini-2.0-flash-exp",
@@ -392,26 +303,33 @@ Configuration files are stored in the user's home directory:
   },
   "models": {
     "google": {
-      "api_key": "your-google-api-key",
-      "project_id": "your-project-id"
+      "api_key": "your-api-key-here"
     },
     "ollama": {
       "base_url": "http://localhost:11434/v1",
-      "enabled": true,
-      "default_model": "qwen"
+      "enabled": true
     }
-  },
-  "settings": {
-    "confirmation_enabled": true,
-    "auto_save_sessions": true,
-    "max_session_history": 1000,
-    "allowed_commands": [
-      "ls", "cat", "grep", "find", "pwd", "echo", "which",
-      "head", "tail", "wc", "sort", "uniq", "diff", "tree"
-    ]
   }
 }
 ```
+
+### Setup Requirements
+- **Python 3.10+** 
+- **API Key**: Google Gemini API key for cloud models
+- **Optional**: Ollama for local models
+
+## Support
+
+### Getting Help
+- Use `/help` command within the application
+- Visit the project documentation
+- Check the issues section for common problems
+
+### Contributing
+Contributions welcome! Please check the contribution guidelines before submitting pull requests.
+
+### License
+This project is licensed under the MIT License.
 
 ### Manual Configuration
 Edit configuration directly using your preferred text editor:
@@ -472,7 +390,7 @@ terminus-cli/
 
 ### Development Setup
 ```bash
-git clone https://github.com/yesh-045/terminus-cli.git
+# Clone or download the project
 cd terminus-cli
 python -m venv env
 source env/bin/activate  # or env\Scripts\activate on Windows
@@ -496,7 +414,7 @@ pip install -e .
 
 ### Getting Help
 - Use `/help` command within the application for comprehensive documentation
-- Visit the GitHub repository for issue reporting and feature requests
+- Check the issues section for common problems
 - Review the ARCHITECTURE.md file for detailed technical documentation
 
 ### Troubleshooting

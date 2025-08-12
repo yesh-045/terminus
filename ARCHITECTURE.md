@@ -233,8 +233,7 @@ tools/
 │   ├── list.py         # Directory browsing and visualization
 │   ├── directory.py    # Directory navigation and management
 │   └── file_discovery.py # Advanced file type analysis
-├── development/         # Development workflow tools (8 tools)
-│   ├── git.py          # Git operations and version control
+├── development/         # Development workflow tools (6 tools)
 │   ├── code_analysis.py # Code structure analysis
 │   ├── dev_workflow.py # Development utilities
 │   └── project_automation.py # Automated project tasks
@@ -307,7 +306,6 @@ Tools are classified by safety level to determine confirmation requirements:
 **Confirmation Required Tools**:
 - File creation and modification
 - System command execution
-- Git operations with repository changes
 - External service integrations
 - Configuration modifications
 
@@ -526,10 +524,7 @@ DEFAULT_ALLOWED_COMMANDS = {
     
     # System information
     "pwd", "echo", "which", "env", "date", "whoami",
-    "ps", "top", "df", "du",
-    
-    # Development tools
-    "git status", "git log", "git diff", "git branch"
+    "ps", "top", "df", "du"
 }
 ```
 
@@ -1289,7 +1284,6 @@ terminus-cli/
 │   │   │
 │   │   ├── development/
 │   │   │   ├── __init__.py
-│   │   │   ├── git.py
 │   │   │   ├── code_analysis.py
 │   │   │   ├── dev_workflow.py
 │   │   │   └── project_automation.py
@@ -1611,22 +1605,7 @@ def format_output_for_terminal(content: str, max_width: int = 80) -> str:
 **User Guides**: Provide clear examples and usage patterns
 **Troubleshooting**: Include common issues and solutions
 
-### Version Control Practices
-
-**Commit Messages**: Use clear, descriptive commit messages
-```
-feat: add new file analysis tool for project insights
-fix: resolve confirmation dialog timeout issue  
-docs: update tool development guidelines
-refactor: reorganize UI components for better maintainability
-```
-
-**Branch Strategy**: Use feature branches for new development
-```
-feature/new-tool-implementation
-bugfix/confirmation-dialog-issue
-docs/architecture-update
-```
+### Code Quality Practices
 
 **Code Reviews**: All changes should be reviewed for:
 - Code quality and consistency

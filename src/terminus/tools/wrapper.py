@@ -11,12 +11,9 @@ from terminus.tools.filesystem.directory import change_directory, get_current_di
 from terminus.tools.filesystem.file_discovery import find_by_extension, list_extensions
 
 # Development tools  
-from terminus.tools.development.git import git_add, git_commit
 from terminus.tools.development.code_analysis import summarize_code, analyze_project_structure
 from terminus.tools.development.dev_workflow import (
-    git_status_enhanced,
     package_info,
-    quick_commit,
     search_todos,
 )
 from terminus.tools.development.project_automation import generate_project_readme, analyze_code_for_refactoring
@@ -51,8 +48,6 @@ def create_tools():
         Tool(write_file),
         Tool(update_file),
         Tool(run_command),
-        Tool(git_add),
-        Tool(git_commit),
         Tool(find),
         Tool(grep),
         Tool(list_directory),
@@ -71,9 +66,7 @@ def create_tools():
         Tool(find_large_files),
         Tool(clean_temp_files),
         # Development workflow
-        Tool(git_status_enhanced),
         Tool(package_info),
-        Tool(quick_commit),
         Tool(search_todos),
         # Help and documentation
         Tool(list_all_commands),

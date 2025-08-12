@@ -115,8 +115,8 @@ def help():
     ai_examples = [
         ("File Operations", '"read the config file" → Uses read_file, write_file, update_file'),
         ("Search & Analysis", '"find all TODO comments" → Uses search_todos, grep, find_by_extension'),
-        ("Git Workflow", '"show git status" → Uses git_status_enhanced, quick_commit'),
-        ("Code Intelligence", '"analyze this project" → Uses summarize_code, analyze_project_structure'),
+        ("Development Tools", '"analyze this project" → Uses analyze_project_structure, package_info'),
+        ("Code Intelligence", '"analyze this code" → Uses summarize_code, analyze_code_for_refactoring'),
         ("System Utilities", '"clean up temp files" → Uses clean_temp_files, find_large_files'),
         ("Get More Help", '"show all commands" → Uses list_all_commands, command_examples'),
     ]
@@ -129,7 +129,7 @@ def help():
     help_table.add_row("", "")  # Spacer
     help_table.add_row(Text("PRO TIPS", style=f"bold {colors.info}"), "")
     help_table.add_row("", Text('• Ask: "what tools are available?" for complete command list', style=colors.muted))
-    help_table.add_row("", Text('• Ask: "show examples for git workflow" for practical usage', style=colors.muted))
+    help_table.add_row("", Text('• Ask: "show examples for development" for practical usage', style=colors.muted))
     help_table.add_row("", Text('• Ask: "help with file operations" for specific guidance', style=colors.muted))
     help_table.add_row("", Text('• Use /yolo to skip confirmations (careful!)', style=colors.muted))
     help_table.add_row("", Text(f'• Total tools available: 34+ commands', style=f"bold {colors.accent}"))
