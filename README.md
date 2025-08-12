@@ -277,20 +277,7 @@ Built-in safety mechanisms:
 - Intelligent tool selection
 - Context-aware responses
 - Error handling and recovery
-- Performance optimization
 
-| Tool | Function | Safety Level |
-|------|----------|--------------|
-| `list_all_commands` | Complete tool reference with usage examples | Safe |
-| `command_examples` | Practical usage patterns and workflows | Safe |
-| `quick_help` | Context-specific help and guidance | Safe |
-
-### Gmail Integration (4 tools)
-**Email management and automation**
-
-| Tool | Function | Safety Level |
-|------|----------|--------------|
-| `list_unread` | Fetch and display unread emails with metadata | Safe |
 ## Configuration
 
 Terminus CLI stores configuration in `~/.config/terminus.json`:
