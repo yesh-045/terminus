@@ -1,208 +1,421 @@
-# Terminus
+# Terminus CLI
 
-A lightweight terminal automation system with local AI agents.
+An advanced terminal automation system powered by AI for intelligent workflow automation, multi-model support, and comprehensive project management.
 
-## What it does
+## Overview
 
-terminus is a powerful CLI tool that brings AI-powered automation to your terminal. It's designed to handle **any** repetitive task - from file operations and system administration to development workflows and data processing. Think of it as your intelligent terminal assistant that can understand natural language and execute complex multi-step operations.
+Terminus CLI is a command-line AI assistant that helps automate common tasks through natural language commands. It provides file operations, system utilities, and productivity tools while maintaining safety through confirmation prompts for destructive operations.
 
-Unlike complex IDE extensions or heavyweight automation tools, terminus is:
-- **Terminal-native**: Works in any shell, on any system
-- **Language-agnostic**: Handles any file type or project structure  
-- **Context-aware**: Remembers your workflow and adapts to your project
-- **Transparent**: Shows you exactly what it's doing with confirmation prompts
+Key features:
+- **Multi-Model AI Support**: Google Gemini and local Ollama model integration
+- **Terminal-native Design**: Works in any shell environment
+- **File Operations**: Read, write, search, and organize files safely
+- **Session Management**: Maintains conversation history across sessions
+- **Safety Framework**: Confirmation prompts for destructive operations
+- **Extensible Tools**: 35+ specialized tools for common tasks
 
-## Core Features
+## Core Capabilities
 
-- ** Natural Language Interface**: Describe what you want in plain English
-- ** Intelligent File Operations**: Read, write, organize, and transform files with AI assistance
-- ** Shell Integration**: Execute commands with smart confirmation and error handling
-- ** Session Memory**: Maintains context across conversations for complex workflows
-- ** Project Understanding**: Analyzes codebases, detects patterns, and suggests improvements
-- ** Safety First**: Confirmation prompts protect against destructive operations
-- ** Git Integration**: Smart version control with enhanced status and commit workflows
-- ** Task Automation**: Handles repetitive tasks from backups to deployments
-- ** Development Tools**: Project scaffolding, testing, and code analysis
+### File Operations
+- **File Management**: Read, write, and modify files with safety confirmations
+- **Search and Discovery**: Find files by name, content, or type across directories
+- **Directory Navigation**: Browse and organize directory structures
+- **Content Analysis**: Analyze code structure and generate documentation
+
+### System Utilities
+- **Command Execution**: Run shell commands with safety validation
+- **System Information**: Display system metrics and resource usage
+- **File Cleanup**: Remove temporary files and optimize storage usage
+- **Process Management**: Monitor and manage running processes
+
+### Productivity Tools
+- **Email Integration**: Gmail operations for reading and managing messages
+- **Calendar Management**: Schedule events and check availability
+- **Project Documentation**: Generate README files and project documentation
+- **Code Analysis**: Review code structure and suggest improvements
 
 ## Installation
 
-### Option 1: Using pipx (Recommended)
-Install pipx if you don't have it:
-```bash
-pip install pipx
-```
+### Prerequisites
+- **Python 3.10 or higher**: Modern Python with asyncio support
+- **API Access**: Google Gemini API key for cloud AI models
+- **Local Models**: Ollama installation for offline AI capabilities (optional)
 
-Then install terminus globally:
+### Installation Methods
+
+#### Option 1: Using pipx (Recommended)
+Pipx provides isolated Python package installation with global command availability:
+
 ```bash
+# Install pipx if not present
+pip install pipx
+
+# Install Terminus CLI globally
 pipx install terminus-cli
 ```
 
-This installs terminus in an isolated environment while making it available globally from any terminal.
+#### Option 2: Using pip
+Standard pip installation for direct Python environment integration:
 
-### Option 2: Using pip
 ```bash
 pip install terminus-cli
 ```
 
-### Option 3: Development Installation
-For development or local installation:
+#### Option 3: Development Installation
+For contributors and advanced users requiring source access:
+
 ```bash
-git clone <repository-url>
+# Download the source code
 cd terminus-cli
 python -m venv env
-# On Windows:
+
+# Windows activation
 env\Scripts\activate
-# On macOS/Linux:
+
+# macOS/Linux activation
 source env/bin/activate
-pip install .
+
+# Install in development mode
+pip install -e .
 ```
 
-## Quick Start
+### Initial Configuration
 
-1. **First-time setup**: Run terminus and configure your API key:
+First-time setup requires API configuration:
+
 ```bash
+# Launch Terminus CLI
 terminus
+
+# Follow interactive setup wizard for:
+# - Google Gemini API key configuration
+# - Default model selection
+# - Security preference settings
 ```
 
-2. **Start automating anything**:
-```
-# 🔍 Project Analysis & Discovery
-> analyze this project structure and suggest improvements
-> find all TODO comments and create a task list
-> what are the largest files taking up space?
+Configuration is stored in `~/.config/terminus.json` and can be manually edited:
 
-# 📁 File & Directory Management  
-> create a backup of all .py files to /backup folder
-> clean up temporary files and cache directories
-> organize these photos by date into folders
-
-# 🚀 Development Workflows
-> run the tests and fix any failures you find
-> create a comprehensive README for this project
-> set up a new Python project with proper structure
-
-# 🔧 System Administration
-> check system health and disk usage
-> find and remove duplicate files in Downloads
-> update all git repositories in this directory
-
-# 📊 Data Processing
-> convert all .csv files to .json format
-> generate a report of file types and sizes
-> merge all markdown files into a single document
-
-# 📧 Email & Calendar Management
-> show me my 10 most recent unread emails
-> summarize the email with subject "Project Update"
-> draft a reply to John thanking him for the update
-> schedule a 1-hour meeting with the team for tomorrow at 2pm
-> check if I'm free next Tuesday between 10am-12pm
-> block 2 hours of focus time for deep work tomorrow morning
-```
-
-
-## Available Commands
-
-### Built-in Commands
-- `/help` - Show comprehensive help guide with AI tools overview
-- `/yolo` - Toggle tool confirmation prompts (DANGEROUS: auto-approves actions)
-- `/clear` - Clear conversation history and start fresh
-- `/dump` - Show detailed message history for debugging
-- `exit` - Exit the application gracefully
-
-### AI-Powered Natural Language Interface
-Instead of memorizing commands, just describe what you want:
-- **"what tools are available?"** → Complete command reference
-- **"analyze this project and suggest improvements"** → Project structure analysis
-- **"find all large files and help me clean up"** → System cleanup utilities
-- **"set up a new Python project with tests"** → Project scaffolding
-- **"backup all important files to cloud storage"** → File management automation
-- **"find and fix all TODO comments"** → Code maintenance workflows
-- **"optimize this directory structure"** → File organization assistance
-
-## Enhanced Tools Available (38 total)
-
-### 📁 File & Directory Operations
-1. **read_file** - Read and analyze file contents  
-2. **write_file** - Create new files with content  
-3. **update_file** - Modify existing files intelligently  
-4. **list_directory** - Browse directory structures  
-5. **change_directory** - Navigate with session awareness  
-6. **get_current_directory** - Show current working directory  
-7. **find** - Search files by name patterns  
-8. **grep** - Search text content across files  
-9. **find_by_extension** - Find files by type (.gitignore aware)  
-10. **list_extensions** - Catalog all file types in project  
-
-### 🔍 Analysis & Discovery
-11. **summarize_code** - Analyze and explain code files  
-12. **analyze_project_structure** - Complete project overview  
-13. **search_todos** - Find TODO/FIXME/HACK comments  
-14. **package_info** - Display project metadata  
-15. **quick_stats** - File/directory statistics  
-
-### 🚀 Development Workflow
-16. **git_add** - Stage files for commit  
-17. **git_commit** - Commit staged changes  
-18. **git_status_enhanced** - Enhanced visual git status  
-19. **quick_commit** - Fast git commit workflow  
-20. **create_project_template** - Generate project scaffolding  
-
-### 🔧 System & Automation
-21. **run_command** - Execute shell commands safely  
-22. **run_in_directory** - Execute commands in specific directories  
-24. **find_large_files** - Locate large files for cleanup  
-25. **clean_temp_files** - Clean temporary and cache files  
-
-### 📚 Help & Documentation
-26. **list_all_commands** - Complete command reference  
-27. **command_examples** - Practical usage examples  
-28. **quick_help** - Context-specific help and guidance  
-
-### 📧 Gmail Operations
-29. **list_unread** - Fetch and display unread emails
-30. **summary** - Generate AI summaries of email content
-31. **generate_draft** - Create email drafts from natural language
-32. **search_email** - Search emails by sender, subject, or content
-
-### 📅 Calendar Operations  
-33. **add_event** - Schedule new calendar events
-34. **check_availability** - Check for scheduling conflicts
-35. **block_focus** - Create focus time blocks in calendar
-
-### 🔧 Google API Setup
-36. **google_auth_status** - Check Google API authentication status
-37. **google_auth_setup** - Set up Google API credentials and OAuth
-38. **google_auth_revoke** - Revoke Google API access  
-
-
-## Requirements
-
-- **Python 3.10+** - Modern Python with async support
-- **Google Gemini API key** - For AI-powered automation
-- **Git** (optional) - For version control operations
-- **Terminal/Shell** - Works with PowerShell, CMD, Bash, Zsh
-
-## Configuration
-
-After installation, terminus will prompt you to configure your API key on first run. The configuration is stored in `~/.config/terminus.json`.
-
-### Manual Configuration
-Edit your config file directly,
-
-To edit : notepad "$env:USERPROFILE\.config\terminus.json" and manually update the api key
 ```json
 {
   "default_model": "google-gla:gemini-2.0-flash-exp",
   "env": {
     "GEMINI_API_KEY": "your-api-key-here"
+  },
+  "models": {
+    "google": {
+      "api_key": "your-api-key-here"
+    },
+    "ollama": {
+      "base_url": "http://localhost:11434/v1",
+      "enabled": true
+    }
   }
 }
+```
+
+## Quick Start Guide
+
+### Basic Usage
+Start Terminus CLI and begin with simple commands:
+
+```bash
+terminus
+```
+
+### Example Commands
+
+#### File Operations
+```
+> read the config file and show me its contents
+> find all Python files in this directory
+> create a backup copy of important.txt
+> show me all files larger than 10MB
+```
+
+#### System Tasks
+```
+> check system disk usage and memory
+> clean up temporary files safely
+> show me what processes are using the most CPU
+> list all installed software packages
+```
+
+#### Productivity
+```
+> check my recent unread emails
+> schedule a meeting for tomorrow at 2pm
+> generate documentation for this project
+> analyze this code file for potential improvements
+```
+
+### Session Management
+```
+> save this session for later
+> load my previous work session
+> clear conversation history
+> show session information
 ```
 
 
 
 
+- **`/help`** - Display comprehensive help documentation with tool overview
+- **`/yolo`** - Toggle confirmation prompts (WARNING: auto-approves destructive operations)
+- **`/clear`** - Clear conversation history and reset session context
+- **`/dump`** - Show detailed message history for debugging and analysis
+- **`/sessions --list`** - List all saved sessions with metadata
+- **`/sessions --save [name]`** - Save current session with optional name
+- **`/sessions --load <name>`** - Load previously saved session
+- **`/sessions --clear`** - Delete all saved sessions
+- **`exit`** - Gracefully exit the application
+
+### Multi-Model Support
+Switch between AI models for different use cases:
+
+```
+> switch to local ollama model for offline work
+> use google gemini for complex analysis tasks
+> show available models and their capabilities
+```
+
+### Natural Language Interface
+Primary interaction through conversational commands:
+
+- **"what tools are available and how do I use them?"** - Complete tool reference
+- **"analyze this codebase and suggest architectural improvements"** - Project analysis
+- **"find all large files and help me optimize storage usage"** - System cleanup
+- **"set up a new Python project with testing and CI/CD pipeline"** - Project scaffolding
+- **"backup critical files to cloud storage with encryption"** - File management
+- **"find and resolve all TODO comments in the codebase"** - Code maintenance
+- **"optimize this directory structure for better organization"** - File organization
+
+## Available Tools
+
+Terminus CLI includes these built-in capabilities:
+
+### File Management
+- Read and write text files
+- Create directory structures  
+- Search and filter files
+- File compression and archiving
+
+### System Operations
+- Monitor system resources
+- Manage processes
+- Check disk usage
+- Clean temporary files
+
+### Communication
+- Send and receive emails
+- Calendar operations
+- Meeting scheduling
+
+### Text Processing
+- Generate documentation
+- Analyze and summarize content
+- Format and convert text
+- Search within files
+
+### Network Operations
+- Web content retrieval
+- Download files
+- Check connectivity
+
+### Development Tools
+- Code analysis
+- Project structure review
+- Test execution
+- Documentation generation
+
+## Tool Categories
+
+### Essential Operations
+Core functionality for daily tasks:
+- File operations (create, read, write, delete)
+- Directory management
+- System monitoring
+- Process management
+
+### Safety Features
+Built-in safety mechanisms:
+- Confirmation prompts for destructive operations
+- Backup creation before modifications
+- Operation logging and audit trails
+- Safe mode for automated operations
+## Safety and Security
+
+### Operation Safety
+- Confirmation prompts for file modifications
+- Backup creation before destructive operations
+- Operation logging for audit trails
+- Safe mode for automated tasks
+
+### Privacy Protection
+- Local processing when possible
+- Secure credential storage
+- No data sharing without consent
+- Session data encryption
+
+## Technical Features
+
+### Multi-Model Support
+- Google Gemini integration
+- Local Ollama support
+- Model switching capabilities
+- Fallback model handling
+
+### Session Management
+- Persistent conversation context
+- Save and restore sessions
+- Message history management
+- Cross-session continuity
+
+### Smart Execution
+- Intelligent tool selection
+- Context-aware responses
+- Error handling and recovery
+
+## Configuration
+
+Terminus CLI stores configuration in `~/.config/terminus.json`:
+
+```json
+{
+  "default_model": "google-gla:gemini-2.0-flash-exp",
+  "env": {
+    "GEMINI_API_KEY": "your-api-key-here"
+  },
+  "models": {
+    "google": {
+      "api_key": "your-api-key-here"
+    },
+    "ollama": {
+      "base_url": "http://localhost:11434/v1",
+      "enabled": true
+    }
+  }
+}
+```
+
+### Setup Requirements
+- **Python 3.10+** 
+- **API Key**: Google Gemini API key for cloud models
+- **Optional**: Ollama for local models
+
+## Support
+
+### Getting Help
+- Use `/help` command within the application
+- Visit the project documentation
+- Check the issues section for common problems
+
+### Contributing
+Contributions welcome! Please check the contribution guidelines before submitting pull requests.
+
+### License
+This project is licensed under the MIT License.
+
+### Manual Configuration
+Edit configuration directly using your preferred text editor:
+
+```bash
+# Windows
+notepad "%USERPROFILE%\.config\terminus.json"
+
+# macOS/Linux
+nano ~/.config/terminus.json
+```
+
+## Architecture Overview
+
+Terminus CLI is built with a clean, modular architecture designed for extensibility and maintainability:
+
+### Core Components
+- **Agent System**: Single intelligent agent with multi-model support
+- **Tool Framework**: 40+ specialized tools organized into logical categories
+- **Session Management**: Persistent context and state management
+- **Safety Framework**: Multi-layer confirmation and validation system
+- **UI System**: Rich terminal interface with consistent styling
+
+### Project Structure
+```
+terminus-cli/
+├── src/terminus/
+│   ├── core/                    # Core business logic
+│   │   ├── agent.py            # AI agent orchestration
+│   │   ├── session.py          # Session management
+│   │   └── persistence.py      # Data persistence
+│   ├── infrastructure/         # External integrations
+│   │   ├── config/            # Configuration management
+│   │   └── models/            # AI model providers
+│   ├── tools/                 # Tool implementations
+│   │   ├── filesystem/        # File operations
+│   │   ├── development/       # Development workflow
+│   │   ├── system/           # System utilities
+│   │   ├── integrations/     # External service integration
+│   │   └── help/             # Help and documentation
+│   ├── interface/cli/         # Command-line interface
+│   │   ├── __main__.py       # Application entry point
+│   │   ├── commands.py       # Built-in commands
+│   │   └── repl.py          # Interactive shell
+│   └── shared/               # Shared utilities
+│       ├── constants.py      # Application constants
+│       └── deps.py          # Dependency injection
+```
+
+### Design Principles
+- **Single Responsibility**: Each tool serves a specific, well-defined purpose
+- **Composability**: Tools can be combined for complex workflows
+- **Safety First**: Destructive operations require explicit confirmation
+- **Context Awareness**: Maintains project and session understanding
+- **Extensibility**: New tools and models can be easily integrated
+
+## Contributing
+
+### Development Setup
+```bash
+# Clone or download the project
+cd terminus-cli
+python -m venv env
+source env/bin/activate  # or env\Scripts\activate on Windows
+pip install -e .
+```
+
+### Adding New Tools
+1. Create tool function in appropriate category directory
+2. Register tool in `tools/wrapper.py`
+3. Add comprehensive docstring for AI agent understanding
+4. Include appropriate safety level and confirmation requirements
+5. Add unit tests and documentation
+
+### Code Standards
+- Type hints for all function parameters and return values
+- Comprehensive docstrings following Google style
+- Error handling with graceful degradation
+- Safety considerations for destructive operations
+
+## Support and Documentation
+
+### Getting Help
+- Use `/help` command within the application for comprehensive documentation
+- Check the issues section for common problems
+- Review the ARCHITECTURE.md file for detailed technical documentation
+
+### Troubleshooting
+- Configuration issues: Verify API keys and model availability
+- Performance problems: Check system resources and network connectivity
+- Tool failures: Review error logs and safety confirmations
+- Model switching: Ensure proper model installation and configuration
+
 ## License
 
-MIT
+MIT License - see LICENSE file for details.
+
+## Acknowledgments
+
+Built with modern Python technologies including:
+- **pydantic-ai**: Advanced AI agent framework
+- **Rich**: Beautiful terminal interfaces and formatting
+- **Typer**: Modern CLI application framework
+- **Google AI**: Gemini model integration
+- **Ollama**: Local AI model runtime
