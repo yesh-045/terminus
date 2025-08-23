@@ -157,10 +157,7 @@ terminus
 ```
 
 
-## Command Interface
 
-### Built-in Commands
-Terminus CLI provides essential session management commands:
 
 - **`/help`** - Display comprehensive help documentation with tool overview
 - **`/yolo`** - Toggle confirmation prompts (WARNING: auto-approves destructive operations)
