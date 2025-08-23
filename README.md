@@ -151,7 +151,6 @@ Instead of memorizing commands, just describe what you want:
 ### 🔧 System & Automation
 21. **run_command** - Execute shell commands safely  
 22. **run_in_directory** - Execute commands in specific directories  
-23. **system_info** - Comprehensive system information  
 24. **find_large_files** - Locate large files for cleanup  
 25. **clean_temp_files** - Clean temporary and cache files  
 
