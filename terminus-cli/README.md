@@ -1,6 +1,8 @@
-# Terminus
+# Terminus CLI v0.1.0
 
 A lightweight terminal automation system with local AI agents.
+
+**Latest Update (v0.1.0):** Modular architecture refactoring for improved maintainability and extensibility.
 
 ## What it does
 
@@ -39,7 +41,7 @@ pipx install terminus-cli
 
 This installs terminus in an isolated environment while making it available globally from any terminal.
 
-### Option 2: Using pip
+### Option 1: Using pip
 ```bash
 pip install terminus-cli
 ```
@@ -120,62 +122,27 @@ Instead of memorizing commands, just describe what you want:
 - **"find and fix all TODO comments"** → Code maintenance workflows
 - **"optimize this directory structure"** → File organization assistance
 
-## Enhanced Tools Available (38 total)
 
-### 📁 File & Directory Operations
-1. **read_file** - Read and analyze file contents  
-2. **write_file** - Create new files with content  
-3. **update_file** - Modify existing files intelligently  
-4. **list_directory** - Browse directory structures  
-5. **change_directory** - Navigate with session awareness  
-6. **get_current_directory** - Show current working directory  
-7. **find** - Search files by name patterns  
-8. **grep** - Search text content across files  
-9. **find_by_extension** - Find files by type (.gitignore aware)  
-10. **list_extensions** - Catalog all file types in project  
+## Project Structure (v0.1.0)
 
-### 🔍 Analysis & Discovery
-11. **summarize_code** - Analyze and explain code files  
-12. **analyze_project_structure** - Complete project overview  
-13. **search_todos** - Find TODO/FIXME/HACK comments  
-14. **package_info** - Display project metadata  
-15. **quick_stats** - File/directory statistics  
+Terminus now features a modular architecture:
 
-### 🚀 Development Workflow
-16. **git_add** - Stage files for commit  
-17. **git_commit** - Commit staged changes  
-18. **git_status_enhanced** - Enhanced visual git status  
-19. **quick_commit** - Fast git commit workflow  
-20. **create_project_template** - Generate project scaffolding  
-
-### 🔧 System & Automation
-21. **run_command** - Execute shell commands safely  
-22. **run_in_directory** - Execute commands in specific directories  
-23. **system_info** - Comprehensive system information  
-24. **find_large_files** - Locate large files for cleanup  
-25. **clean_temp_files** - Clean temporary and cache files  
-
-### 📚 Help & Documentation
-26. **list_all_commands** - Complete command reference  
-27. **command_examples** - Practical usage examples  
-28. **quick_help** - Context-specific help and guidance  
-
-### 📧 Gmail Operations
-29. **list_unread** - Fetch and display unread emails
-30. **summary** - Generate AI summaries of email content
-31. **generate_draft** - Create email drafts from natural language
-32. **search_email** - Search emails by sender, subject, or content
-
-### 📅 Calendar Operations  
-33. **add_event** - Schedule new calendar events
-34. **check_availability** - Check for scheduling conflicts
-35. **block_focus** - Create focus time blocks in calendar
-
-### 🔧 Google API Setup
-36. **google_auth_status** - Check Google API authentication status
-37. **google_auth_setup** - Set up Google API credentials and OAuth
-38. **google_auth_revoke** - Revoke Google API access  
-
+```
+src/terminus/
+├── core/               # Core components
+│   ├── agent.py       # AI agent orchestration
+│   ├── repl.py        # Main interaction loop
+│   ├── session.py     # State management
+│   └── deps.py        # Tool dependencies
+├── tools/             # Tool implementations
+│   ├── file_ops/      # File operations
+│   ├── dev_tools/     # Development tools
+│   ├── analysis/      # Code analysis
+│   └── integrations/  # External integrations
+├── infrastructure/    # Infrastructure components
+├── ui/                # Rich UI components
+└── utils/             # Utility modules
+```
 
 ## Requirements
 

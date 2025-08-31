@@ -113,6 +113,34 @@
 
 ## Core Architecture
 
+### Modular Architecture (v0.2.0 Update)
+
+Terminus has been restructured with a modular architecture for better maintainability and extensibility:
+
+```
+src/terminus/
+├── core/               # Core components (NEW)
+│   ├── agent.py       # AI agent orchestration
+│   ├── repl.py        # Main interaction loop  
+│   ├── session.py     # Global state management
+│   ├── deps.py        # Tool dependency system
+│   ├── commands.py    # Built-in slash commands
+│   ├── config.py      # Configuration handling
+│   └── setup.py       # First-time setup wizard
+├── tools/             # Tool implementations
+│   ├── file_ops/      # File operations (NEW)
+│   ├── dev_tools/     # Development tools (NEW)
+│   ├── analysis/      # Code analysis (NEW)
+│   ├── integrations/  # External integrations (NEW)
+│   └── wrapper.py     # Tool registration
+├── infrastructure/    # Infrastructure components (NEW)
+│   ├── models.py      # Model management
+│   └── natural_language.py # NLP utilities
+├── ui/                # UI components
+├── utils/             # Utility modules
+└── prompts/           # System prompts
+```
+
 ### Application Entry Point (`__main__.py`)
 
 ```python
@@ -133,7 +161,7 @@ def main():
 - **Configuration Loading**: Handles first-time setup and validation
 - **Session Initialization**: Prepares global state
 
-### Session Management (`session.py`)
+### Session Management (`core/session.py`)
 
 The global session object maintains state across the entire application lifecycle:
 
@@ -279,7 +307,7 @@ Terminus provides **35 specialized tools** organized into logical categories:
 | `check_availability` | Check for scheduling conflicts | Safe |
 | `block_focus` | Create focus time blocks | Requires confirmation |
 
-### Tool Dependencies System
+### Tool Dependencies System (`core/deps.py`)
 
 ```python
 @dataclass
@@ -288,6 +316,11 @@ class ToolDeps:
     confirm_action: Optional[Callable]      # User confirmation callback
     display_tool_status: Optional[Callable] # Progress display callback
 ```
+
+**Import Updates (v0.2.0):**
+- All tool files now use relative imports: `from ...core.deps import ToolDeps`
+- Core modules reference each other with relative imports
+- Session is imported as: `from terminus.core.session import session`
 
 ### Tool Registration
 
@@ -527,41 +560,61 @@ class ErrorContext:
 - **State Preservation**: Maintain session integrity
 - **User Feedback**: Clear cancellation messages
 
-## Project Structure
+## Project Structure (v0.2.0 - Modular Architecture)
 
 ```
 terminus-cli/
 ├── pyproject.toml           # Package configuration
-├── README.md               # User documentation
+├── README.md               # User documentation  
 ├── ARCHITECTURE.md         # This file
 ├── src/terminus/
 │   ├── __init__.py         # Package exports
 │   ├── __main__.py         # Application entry point
-│   ├── agent.py            # AI agent orchestration
-│   ├── repl.py             # Main interaction loop
-│   ├── session.py          # Global state management
-│   ├── config.py           # Configuration handling
-│   ├── setup.py            # First-time setup wizard
-│   ├── commands.py         # Built-in slash commands
-│   ├── deps.py             # Tool dependency system
 │   ├── constants.py        # App constants and defaults
+│   ├── core/               # Core components (NEW)
+│   │   ├── __init__.py     # Core module exports
+│   │   ├── agent.py        # AI agent orchestration
+│   │   ├── repl.py         # Main interaction loop
+│   │   ├── session.py      # Global state management
+│   │   ├── deps.py         # Tool dependency system
+│   │   ├── commands.py     # Built-in slash commands
+│   │   ├── config.py       # Configuration handling
+│   │   └── setup.py        # First-time setup wizard
+│   ├── infrastructure/     # Infrastructure components (NEW)
+│   │   ├── __init__.py     # Infrastructure exports
+│   │   ├── models.py       # Model management and config
+│   │   └── natural_language.py # NLP utilities
 │   ├── tools/              # Tool implementations
 │   │   ├── __init__.py     # Tool exports
-│   │   ├── wrapper.py      # Tool registration
-│   │   ├── read_file.py    # File reading operations
-│   │   ├── write_file.py   # File creation operations
-│   │   ├── update_file.py  # File modification operations
-│   │   ├── run_command.py  # Shell command execution
-│   │   ├── git.py          # Git operations
-│   │   ├── find.py         # File discovery
-│   │   ├── grep.py         # Text search
-│   │   ├── list.py         # Directory listing
-│   │   ├── directory.py    # Directory operations
-│   │   ├── file_discovery.py # Advanced file discovery
-│   │   ├── code_analysis.py # Code analysis tools
-│   │   ├── system_utilities.py # System utilities
-│   │   ├── dev_workflow.py # Development workflow
-│   │   └── help_system.py  # Help and documentation
+│   │   ├── wrapper.py      # Tool registration and creation
+│   │   ├── file_ops/       # File operations (NEW)
+│   │   │   ├── __init__.py # File ops exports
+│   │   │   ├── read_file.py # File reading operations
+│   │   │   ├── write_file.py # File creation operations
+│   │   │   ├── update_file.py # File modification operations
+│   │   │   ├── find.py     # File discovery
+│   │   │   ├── grep.py     # Text search
+│   │   │   ├── list.py     # Directory listing
+│   │   │   ├── directory.py # Directory operations
+│   │   │   └── file_discovery.py # Advanced file discovery
+│   │   ├── dev_tools/      # Development tools (NEW)
+│   │   │   ├── __init__.py # Dev tools exports
+│   │   │   ├── git.py      # Git operations
+│   │   │   ├── run_command.py # Shell command execution
+│   │   │   ├── dev_workflow.py # Development workflow
+│   │   │   ├── system_utilities.py # System utilities
+│   │   │   └── help_system.py # Help and documentation
+│   │   ├── analysis/       # Code analysis tools (NEW)
+│   │   │   ├── __init__.py # Analysis exports
+│   │   │   ├── code_analysis.py # Code summarization
+│   │   │   ├── code_review.py # Code review capabilities
+│   │   │   └── code_reviewer.py # Code analyzer engine
+│   │   └── integrations/   # External integrations (NEW)
+│   │       ├── __init__.py # Integration exports
+│   │       ├── gmail.py    # Gmail API operations
+│   │       ├── calendar.py # Google Calendar operations
+│   │       ├── google_auth.py # Google OAuth handling
+│   │       └── google_setup.py # Google API setup
 │   ├── ui/                 # Rich-based UI system
 │   │   ├── __init__.py     # UI exports
 │   │   ├── core.py         # Banner, spinners, core functions
@@ -576,8 +629,9 @@ terminus-cli/
 │   │   ├── input.py        # Multiline input handling
 │   │   ├── logger.py       # Logging configuration
 │   │   └── guide.py        # Project guide loading
-│   └── prompts/
-│       └── system.txt      # Agent system prompt
+│   └── prompts/            # System prompts
+│       ├── system.txt      # Main agent system prompt
+│       └── local_model_system.txt # Local model prompt
 ├── build/                  # Build artifacts
 └── env/                    # Virtual environment
 ```
