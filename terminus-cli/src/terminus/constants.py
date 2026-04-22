@@ -2,7 +2,7 @@ APP_NAME = "terminus"
 APP_VERSION = "0.1.0"
 
 # Simplified single model support
-DEFAULT_MODEL = "google-gla:gemini-2.0-flash-exp"
+DEFAULT_MODEL = "google-gla:gemini-2.5-flash"
 
 # Non-destructive tools that should always be allowed without confirmation
 ALLOWED_TOOLS = [

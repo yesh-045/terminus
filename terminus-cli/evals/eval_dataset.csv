@@ -1,0 +1,158 @@
+prompt,expected_tools
+Find where the function calculate_total is defined,grep
+Create a new python script setup.cfg to test the API,write_file
+Find all Python files and read them to find TODOs,"find,read_file"
+Make a new file named config.json with some dummy data,write_file
+Could you show me what's inside pyproject.toml?,read_file
+What are the biggest files currently taking up space?,find_large_files
+List the files in the current directory,list_dir
+Look for references to the User class in dist,grep
+Search for the term 'API_KEY' across the codebase,grep
+Locate all markdown files,find
+Update the README.md to include installation instructions,update_file
+Search for the word 'TODO' in all python files,grep
+Check for bloat or large files in my project,find_large_files
+Check for bloat or large files in my project,find_large_files
+Could you show me what's inside pyproject.toml?,read_file
+Search for API_KEY and then update the file to remove it,"grep,update_file"
+Start the server with python run.py,run_command
+Find me all the tests in the build directory,find
+Explore the src folder and tell me what's inside,list_dir
+Summarize the logic inside the src folder,summarize_code
+Show me my git tree,git_status_enhanced
+Run pytest on the test directory,run_command
+Find all python files in the src folder,find
+Show me files over 100MB,find_large_files
+What files are in the src folder?,list_dir
+ls -la the current directory,list_dir
+List the files in src and read the first one,"list_dir,read_file"
+Create a new file called test.py,write_file
+Load the config from app.js and show it to me,read_file
+Can you summarize the code in main.py?,summarize_code
+ls -la the current directory,list_dir
+Can you summarize the code in main.py?,summarize_code
+Find where the function calculate_total is defined,grep
+What branches are modified right now?,git_status_enhanced
+Write a python script that prints hello world to hello.py,write_file
+Search for the term 'API_KEY' across the codebase,grep
+Search for the term 'API_KEY' across the codebase,grep
+Append a new line to the end of pyproject.toml,update_file
+Modify config.json and add a docstring to the main function,update_file
+Read the content of README.md,read_file
+Summarize the logic inside the build folder,summarize_code
+Modify config.json and add a docstring to the main function,update_file
+Check my git status,run_command
+Add a new function to main.py,update_file
+Look for references to the User class in lib,grep
+Give me a quick overview of what config.json does,summarize_code
+Create a new file called test.py,write_file
+What's the current git status?,git_status_enhanced
+Where are all the .py files located?,find
+Check git status and then run pytest before committing,"git_status_enhanced,run_command"
+Append a new line to the end of pyproject.toml,update_file
+Check my git status,run_command
+Are there any huge files in the codebase?,find_large_files
+Where are all the .py files located?,find
+Check for bloat or large files in my project,find_large_files
+Print the contents of src/main.py,read_file
+Search for the term 'API_KEY' across the codebase,grep
+Create a new python script index.html to test the API,write_file
+Execute the install.sh script,run_command
+Execute the install.sh script,run_command
+Search for the word 'TODO' in all python files,grep
+Look for references to the User class in components,grep
+Show me my git tree,git_status_enhanced
+Could you show me what's inside pyproject.toml?,read_file
+Can you summarize the code in main.py?,summarize_code
+Summarize the logic inside the dist folder,summarize_code
+Make a new file named config.json with some dummy data,write_file
+Summarize the logic inside the src folder,summarize_code
+Create a new file called test.py,write_file
+What branches are modified right now?,git_status_enhanced
+Give me a quick overview of what main.py does,summarize_code
+Load the config from data.csv and show it to me,read_file
+Append a new line to the end of pyproject.toml,update_file
+Find the largest files in the dist directory,find_large_files
+Append a new line to the end of pyproject.toml,update_file
+Show me my git tree,git_status_enhanced
+Show me the contents of the tests directory,list_dir
+ls -la the current directory,list_dir
+Show me my git tree,git_status_enhanced
+Give me a detailed git status,git_status_enhanced
+Create a new python script index.html to test the API,write_file
+List the files in the current directory,list_dir
+Check what files I need to commit,git_status_enhanced
+Read setup.cfg,read_file
+Execute the install.sh script,run_command
+Refactor the code in main.py to use dataclasses,update_file
+Where are all the .py files located?,find
+Are there any huge files in the codebase?,find_large_files
+Show me my git tree,git_status_enhanced
+Search for all json files in the workspace,find
+Find me all the tests in the build directory,find
+Summarize the logic inside the build folder,summarize_code
+Show me large files and let's summarize the biggest one,"find_large_files,summarize_code"
+Append a new line to the end of pyproject.toml,update_file
+Update the README.md to include installation instructions,update_file
+Start the server with python run.py,run_command
+Check my git status,run_command
+List the files in the current directory,list_dir
+List the files in the current directory,list_dir
+Check my git status,run_command
+Modify data.csv and add a docstring to the main function,update_file
+Find all python files in the src folder,find
+Execute the install.sh script,run_command
+Locate all markdown files,find
+Execute the install.sh script,run_command
+Summarize the logic inside the tests folder,summarize_code
+Find me all the tests in the tests directory,find
+What are the biggest files currently taking up space?,find_large_files
+Create a new file called test.py,write_file
+Are there any huge files in the codebase?,find_large_files
+Check what files I need to commit,git_status_enhanced
+Search for the term 'API_KEY' across the codebase,grep
+Could you show me what's inside pyproject.toml?,read_file
+What does the user authentication module do?,summarize_code
+Check for bloat or large files in my project,find_large_files
+Load the config from setup.cfg and show it to me,read_file
+Create a new file called test.py,write_file
+Read app.js,read_file
+Print the contents of src/main.py,read_file
+List the files in the current directory,list_dir
+Show me files over 100MB,find_large_files
+Load the config from utils.py and show it to me,read_file
+Show me the contents of the dist directory,list_dir
+Load the config from config.json and show it to me,read_file
+Look for references to the User class in components,grep
+Show me the contents of the lib directory,list_dir
+Show me my git tree,git_status_enhanced
+Add a new function to main.py,update_file
+Give me a quick overview of what utils.py does,summarize_code
+Do I have any uncommitted changes?,git_status_enhanced
+Are there any huge files in the codebase?,find_large_files
+Search for the term 'API_KEY' across the codebase,grep
+Find all python files in the src folder,find
+Execute the install.sh script,run_command
+Grep for 'TODO' in the src directory,grep
+ls -la the current directory,list_dir
+Read utils.py,read_file
+Run npm run build,run_command
+Explain the config.json script in simple terms,summarize_code
+Locate all markdown files,find
+"Create a new file called test.txt, write hello to it, and read it back","write_file,read_file"
+Create a new python script main.py to test the API,write_file
+Where are all the .py files located?,find
+"Find all json files, find 'config' inside them, and create a report file","find,grep,write_file"
+Create a new file called test.py,write_file
+Find all python files in the src folder,find
+Modify app.js and add a docstring to the main function,update_file
+What branches are modified right now?,git_status_enhanced
+Are there any huge files in the codebase?,find_large_files
+What files are in the src folder?,list_dir
+Generate a README.md file in the current directory,write_file
+What's the current git status?,git_status_enhanced
+Give me a quick overview of what app.js does,summarize_code
+Add a new function to main.py,update_file
+Run npm run build,run_command
+Check for bloat or large files in my project,find_large_files
+Create a new file called test.py,write_file

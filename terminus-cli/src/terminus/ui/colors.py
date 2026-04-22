@@ -2,63 +2,63 @@
 
 
 class Colors:
-    # Core brand: Modern Professional theme
-    primary = "steel_blue1"           # Professional steel blue - main brand
-    secondary = "medium_purple1"      # Elegant purple - secondary actions  
-    accent = "orange3"                # Refined orange - key highlights
+    # Core brand: Clean Professional theme
+    primary = "#ffb86c"               # Soft light orange - main brand
+    secondary = "grey70"              # Neutral gray - secondary actions
+    accent = "#ffaf5f"                # Lighter orange - key highlights
     
     # Status colors: Clear and professional
-    success = "green3"                # Refined green - success states
-    warning = "gold3"                 # Professional gold - warnings
-    error = "red3"                    # Clean red - errors
-    info = "sky_blue1"                # Professional sky blue - information
+    success = "green"                 # Sharp green - success states
+    warning = "bright_yellow"         # Clear yellow - warnings
+    error = "red"                     # Standard red - errors
+    info = "cornflower_blue"          # Professional blue - information
     
     # Text hierarchy: Professional contrast
     text = "white"                    # Pure white - primary text
     text_bright = "bright_white"      # Emphasis text
-    muted = "grey78"                  # Professional grey - secondary text
-    subtle = "grey62"                 # Subtle grey - tertiary text
+    muted = "grey58"                  # Mid grey - secondary text
+    subtle = "grey42"                 # Dark grey - tertiary text
     
     # Tool operations: Clear semantic coding
-    tool_data = "medium_spring_green" # Data output
-    code = "light_salmon1"            # Code content  
-    path = "light_steel_blue1"        # File paths
-    command = "gold1"                 # Commands
+    tool_data = "light_green"         # Data output
+    code = "grey84"                   # Code content  
+    path = "light_blue"               # File paths
+    command = "yellow"                # Commands
     
     # File system: Clear hierarchy
-    directory = "deep_sky_blue1"      # Directories
-    file = "light_pink1"              # Files
-    executable = "medium_spring_green"# Executables
-    config = "medium_turquoise"       # Config files
+    directory = "dodger_blue2"        # Directories
+    file = "grey78"                   # Files
+    executable = "green_yellow"       # Executables
+    config = "#ffb86c"                # Config files
     
     # Advanced features: Professional colors
-    summary = "wheat1"                # Summaries
-    analysis = "plum1"                # Analysis output
-    extension = "medium_orchid1"      # Extensions
-    session = "steel_blue"            # Session context
+    summary = "grey74"                # Summaries
+    analysis = "grey66"               # Analysis output
+    extension = "grey50"              # Extensions
+    session = "#ffb86c"               # Session context
     
     # Interactive states: Professional feedback
-    highlight = "yellow1"             # Highlights
-    focus = "medium_purple"           # Focus states
-    disabled = "grey58"               # Disabled state
+    highlight = "#ffcc80"             # Highlights
+    focus = "#ffb86c"                 # Focus states
+    disabled = "grey35"               # Disabled state
     
     # UI elements
-    border = "grey46"                 # Borders
-    separator = "grey54"              # Separators
-    background = "grey19"             # Backgrounds
+    border = "grey35"                 # Borders
+    separator = "grey30"              # Separators
+    background = "default"            # Backgrounds
     
     # Syntax highlighting: Clean and readable
-    keyword = "light_slate_blue"      # Keywords
+    keyword = "dodger_blue1"          # Keywords
     string = "light_green"            # Strings
-    number = "sandy_brown"            # Numbers
-    comment = "grey62"                # Comments
-    operator = "hot_pink1"            # Operators
+    number = "#ffb86c"                # Numbers
+    comment = "grey50"                # Comments
+    operator = "grey70"               # Operators
     
     # Status indicators: Clear states
-    online = "medium_spring_green"    # Active
-    offline = "grey54"                # Inactive
-    pending = "gold3"                 # Loading
-    processing = "deep_sky_blue1"     # Processing
+    online = "green"                  # Active
+    offline = "grey50"                # Inactive
+    pending = "bright_yellow"         # Loading
+    processing = "#ffb86c"            # Processing
 
 
 colors = Colors()

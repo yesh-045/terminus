@@ -1,0 +1,952 @@
+[
+  {
+    "prompt": "Find where the function calculate_total is defined",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Create a new python script setup.cfg to test the API",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "Find all Python files and read them to find TODOs",
+    "expected_tools": [
+      "find",
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Make a new file named config.json with some dummy data",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "Could you show me what's inside pyproject.toml?",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "What are the biggest files currently taking up space?",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "List the files in the current directory",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "Look for references to the User class in dist",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Search for the term 'API_KEY' across the codebase",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Locate all markdown files",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Update the README.md to include installation instructions",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Search for the word 'TODO' in all python files",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Check for bloat or large files in my project",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "Check for bloat or large files in my project",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "Could you show me what's inside pyproject.toml?",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Search for API_KEY and then update the file to remove it",
+    "expected_tools": [
+      "grep",
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Start the server with python run.py",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Find me all the tests in the build directory",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Explore the src folder and tell me what's inside",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "Summarize the logic inside the src folder",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Show me my git tree",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Run pytest on the test directory",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Find all python files in the src folder",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Show me files over 100MB",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "What files are in the src folder?",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "ls -la the current directory",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "List the files in src and read the first one",
+    "expected_tools": [
+      "list_dir",
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Create a new file called test.py",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "Load the config from app.js and show it to me",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Can you summarize the code in main.py?",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "ls -la the current directory",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "Can you summarize the code in main.py?",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Find where the function calculate_total is defined",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "What branches are modified right now?",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Write a python script that prints hello world to hello.py",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "Search for the term 'API_KEY' across the codebase",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Search for the term 'API_KEY' across the codebase",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Append a new line to the end of pyproject.toml",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Modify config.json and add a docstring to the main function",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Read the content of README.md",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Summarize the logic inside the build folder",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Modify config.json and add a docstring to the main function",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Check my git status",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Add a new function to main.py",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Look for references to the User class in lib",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Give me a quick overview of what config.json does",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Create a new file called test.py",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "What's the current git status?",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Where are all the .py files located?",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Check git status and then run pytest before committing",
+    "expected_tools": [
+      "git_status_enhanced",
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Append a new line to the end of pyproject.toml",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Check my git status",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Are there any huge files in the codebase?",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "Where are all the .py files located?",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Check for bloat or large files in my project",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "Print the contents of src/main.py",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Search for the term 'API_KEY' across the codebase",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Create a new python script index.html to test the API",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "Execute the install.sh script",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Execute the install.sh script",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Search for the word 'TODO' in all python files",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Look for references to the User class in components",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Show me my git tree",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Could you show me what's inside pyproject.toml?",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Can you summarize the code in main.py?",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Summarize the logic inside the dist folder",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Make a new file named config.json with some dummy data",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "Summarize the logic inside the src folder",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Create a new file called test.py",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "What branches are modified right now?",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Give me a quick overview of what main.py does",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Load the config from data.csv and show it to me",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Append a new line to the end of pyproject.toml",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Find the largest files in the dist directory",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "Append a new line to the end of pyproject.toml",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Show me my git tree",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Show me the contents of the tests directory",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "ls -la the current directory",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "Show me my git tree",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Give me a detailed git status",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Create a new python script index.html to test the API",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "List the files in the current directory",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "Check what files I need to commit",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Read setup.cfg",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Execute the install.sh script",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Refactor the code in main.py to use dataclasses",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Where are all the .py files located?",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Are there any huge files in the codebase?",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "Show me my git tree",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Search for all json files in the workspace",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Find me all the tests in the build directory",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Summarize the logic inside the build folder",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Show me large files and let's summarize the biggest one",
+    "expected_tools": [
+      "find_large_files",
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Append a new line to the end of pyproject.toml",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Update the README.md to include installation instructions",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Start the server with python run.py",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Check my git status",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "List the files in the current directory",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "List the files in the current directory",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "Check my git status",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Modify data.csv and add a docstring to the main function",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Find all python files in the src folder",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Execute the install.sh script",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Locate all markdown files",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Execute the install.sh script",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Summarize the logic inside the tests folder",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Find me all the tests in the tests directory",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "What are the biggest files currently taking up space?",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "Create a new file called test.py",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "Are there any huge files in the codebase?",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "Check what files I need to commit",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Search for the term 'API_KEY' across the codebase",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Could you show me what's inside pyproject.toml?",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "What does the user authentication module do?",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Check for bloat or large files in my project",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "Load the config from setup.cfg and show it to me",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Create a new file called test.py",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "Read app.js",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Print the contents of src/main.py",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "List the files in the current directory",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "Show me files over 100MB",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "Load the config from utils.py and show it to me",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Show me the contents of the dist directory",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "Load the config from config.json and show it to me",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Look for references to the User class in components",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Show me the contents of the lib directory",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "Show me my git tree",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Add a new function to main.py",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Give me a quick overview of what utils.py does",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Do I have any uncommitted changes?",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Are there any huge files in the codebase?",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "Search for the term 'API_KEY' across the codebase",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "Find all python files in the src folder",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Execute the install.sh script",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Grep for 'TODO' in the src directory",
+    "expected_tools": [
+      "grep"
+    ]
+  },
+  {
+    "prompt": "ls -la the current directory",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "Read utils.py",
+    "expected_tools": [
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Run npm run build",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Explain the config.json script in simple terms",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Locate all markdown files",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Create a new file called test.txt, write hello to it, and read it back",
+    "expected_tools": [
+      "write_file",
+      "read_file"
+    ]
+  },
+  {
+    "prompt": "Create a new python script main.py to test the API",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "Where are all the .py files located?",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Find all json files, find 'config' inside them, and create a report file",
+    "expected_tools": [
+      "find",
+      "grep",
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "Create a new file called test.py",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "Find all python files in the src folder",
+    "expected_tools": [
+      "find"
+    ]
+  },
+  {
+    "prompt": "Modify app.js and add a docstring to the main function",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "What branches are modified right now?",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Are there any huge files in the codebase?",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "What files are in the src folder?",
+    "expected_tools": [
+      "list_dir"
+    ]
+  },
+  {
+    "prompt": "Generate a README.md file in the current directory",
+    "expected_tools": [
+      "write_file"
+    ]
+  },
+  {
+    "prompt": "What's the current git status?",
+    "expected_tools": [
+      "git_status_enhanced"
+    ]
+  },
+  {
+    "prompt": "Give me a quick overview of what app.js does",
+    "expected_tools": [
+      "summarize_code"
+    ]
+  },
+  {
+    "prompt": "Add a new function to main.py",
+    "expected_tools": [
+      "update_file"
+    ]
+  },
+  {
+    "prompt": "Run npm run build",
+    "expected_tools": [
+      "run_command"
+    ]
+  },
+  {
+    "prompt": "Check for bloat or large files in my project",
+    "expected_tools": [
+      "find_large_files"
+    ]
+  },
+  {
+    "prompt": "Create a new file called test.py",
+    "expected_tools": [
+      "write_file"
+    ]
+  }
+]

@@ -46,7 +46,9 @@ def _convert_model_name_for_pydantic_ai(model_name: str) -> str:
             
     elif model_name.startswith("google"):
         # Handle Google models
-        if model_name == "google-gla:gemini-2.0-flash-exp":
+        if model_name == "google-gla:gemini-2.5-flash":
+            return "gemini-2.5-flash"
+        elif model_name == "google-gla:gemini-2.0-flash-exp":
             return "gemini-2.0-flash-exp"
         elif model_name == "google:gemini-1.5-pro":
             return "gemini-1.5-pro"
