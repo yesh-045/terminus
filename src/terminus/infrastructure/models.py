@@ -135,6 +135,10 @@ class ModelManager:
         
     def _load_model_preferences(self):
         """Load model preferences from config."""
+        # Preserve an explicitly selected model across re-initialization when possible.
+        if self.current_model in self.models and self.models[self.current_model].available:
+            return
+
         try:
             config = ensure_config_structure()
             default_model = config.get("default_model", "google-gla:gemini-2.0-flash-exp")
@@ -185,6 +189,8 @@ class ModelManager:
         
         # Update global session state (import the instance, not the module)
         session_state.current_model = model_name
+        # Force recreation of the runtime agent on next request.
+        session_state.agents.pop("default", None)
         
         # Update config file 
         try:

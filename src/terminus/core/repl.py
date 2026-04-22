@@ -51,13 +51,6 @@ class Repl:
         """Process a user request with proper exception handling."""
         log.debug(f"Handling user request: {user_input.replace('\n', ' ')[:100]}...")
         
-        # Enhanced spinner with more dynamic messages
-        thinking_messages = [
-            "Thinking...",
-            "Analyzing request...",
-            "Processing...",
-            "Working on it..."
-        ]
         ui.start_spinner(ui.get_thinking_message())
         session.sigint_received = False
 
@@ -153,7 +146,30 @@ class Repl:
         # Initialize enhanced features
         try:
             await model_manager.initialize()
-            persistence.auto_restore()
+            restored = persistence.auto_restore()
+            # Keep startup model display aligned with an actually available runtime model.
+            def _is_available(model_name: str | None) -> bool:
+                return bool(
+                    model_name
+                    and model_name in model_manager.models
+                    and model_manager.models[model_name].available
+                )
+
+            preferred = session.current_model if restored else None
+            if _is_available(preferred):
+                active_model = preferred
+            elif _is_available(model_manager.current_model):
+                active_model = model_manager.current_model
+            else:
+                # Final fallback to any available model discovered at startup.
+                active_model = next(
+                    (name for name, info in model_manager.models.items() if info.available),
+                    session.current_model,
+                )
+
+            if active_model:
+                session.current_model = active_model
+                model_manager.current_model = active_model
             log.debug("Enhanced features initialized")
         except Exception as e:
             log.error(f"Failed to initialize enhanced features: {e}")

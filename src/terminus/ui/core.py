@@ -21,45 +21,10 @@ BANNER = """
    ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝"""
 
 THINKING_MESSAGES = [
-"Compiling situational logic...",
-
-"Cross-referencing session memory...",
-
-"Interpolating command structure...",
-
-"Distilling semantic core...",
-
-"Assembling deterministic route...",
-
-"Indexing execution context...",
-
-"Resolving latent conditions...",
-
-"Reducing ambiguity space...",
-
-"Synthesizing intent vectors...",
-
-"Mapping command topology...",
-
-"Modeling procedural outcome...",
-
-"Validating scope constraints...",
-
-"Reconstructing directive chain...",
-
-"Identifying operative primitives...",
-
-"Initiating zero-state resolve...",
-
-"Projecting response envelope...",
-
-"Caching transient states...",
-
-"Detecting input variance...",
-
-"Stabilizing interface flux...",
-
-"Decrypting execution symbolics..."
+"Working...",
+"One moment...",
+"Getting this ready...",
+"Almost done..."
 ]
 
 

@@ -455,6 +455,7 @@ async def handle_help():
     ui.line()
     ui.info("Models & Configuration")
     ui.bullet("/models - List available AI models")
+    ui.bullet("/model [name] - Show or switch current model")
     ui.bullet("/switch <model> - Switch AI model")
     ui.bullet("/offline - Switch to offline mode")
     ui.bullet("/config - Runtime configuration management")
@@ -466,12 +467,7 @@ async def handle_help():
     ui.bullet("/load <name> - Load saved session")
     ui.bullet("/cleanup - Clean up unnecessary sessions")
     
-    ui.line()
-    ui.info("Enhanced Features")
-    ui.bullet("Color-coded operations: Green = safe, Red = destructive")
-    ui.bullet("Natural language: 'show me all py files' → list files")
-    ui.bullet("Project context: Tag states with #projectA")
-    ui.bullet("Smart history: Last 10 commands with success/failure tracking")
+
 
 
 async def handle_tag(args: list[str]):
@@ -738,6 +734,7 @@ async def handle_command(user_input: str) -> bool:
         "/status": handle_status,
         "/version": handle_version,
         "/models": handle_models,
+        "/model": lambda: handle_model(args),
         "/offline": handle_offline,
         "/sessions": lambda: handle_sessions(args),
         "/save": lambda: handle_save_session(args),

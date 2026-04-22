@@ -9,6 +9,7 @@ description = "Lightweight terminal automation with local AI agents"
 requires-python = ">=3.10"
 dependencies = [
     "pydantic-ai",
+    "openai>=1.40.0",
     "rich",
     "typer",
     "prompt_toolkit",

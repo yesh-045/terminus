@@ -23,8 +23,13 @@ async def change_directory(ctx: RunContext[ToolDeps], path: str) -> str:
     return result
 
 
-async def get_current_directory(ctx: RunContext[ToolDeps]) -> str:
-    """Get the current working directory."""
+async def get_current_directory(ctx: RunContext[ToolDeps], path: str | None = None) -> str:
+    """Get the current working directory.
+
+    Note:
+        Some smaller local models occasionally pass a spurious `path` argument.
+        We accept and ignore it for robustness.
+    """
     log.debug("get_current_directory called")
 
     if ctx.deps and ctx.deps.display_tool_status:

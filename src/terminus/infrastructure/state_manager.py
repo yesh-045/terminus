@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from difflib import SequenceMatcher
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -200,15 +201,22 @@ class StateManager:
     
     def find_fuzzy_match(self, user_input: str) -> Optional[str]:
         """Find a fuzzy match for user input."""
-        user_lower = user_input.lower()
+        user_lower = " ".join(user_input.lower().split())
         
         # Exact match first
         if user_lower in self.data.fuzzy_patterns:
             return self.data.fuzzy_patterns[user_lower]
         
-        # Partial matches
+        # Conservative fuzzy matching to avoid unintended tool triggers.
+        # Only accept near-identical phrases (typos), not loose partial matches.
         for pattern, tool_call in self.data.fuzzy_patterns.items():
-            if pattern in user_lower or user_lower in pattern:
+            normalized_pattern = " ".join(pattern.lower().split())
+            length_delta = abs(len(normalized_pattern) - len(user_lower))
+            if length_delta > 4:
+                continue
+
+            similarity = SequenceMatcher(a=normalized_pattern, b=user_lower).ratio()
+            if similarity >= 0.92:
                 return tool_call
                 
         return None

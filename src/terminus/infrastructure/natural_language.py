@@ -1,5 +1,6 @@
 import logging
 import re
+from difflib import SequenceMatcher
 from typing import List, Optional, Tuple
 
 from .state_manager import state_manager
@@ -18,10 +19,13 @@ class NaturalLanguageProcessor:
             r'\b(?:show|list)\s+(?:all|the)?\s*(?:javascript|js)\s+files?': 'find *.js',
             r'\b(?:show|list)\s+(?:all|the)?\s*(?:typescript|ts)\s+files?': 'find *.ts',
             r'\b(?:show|list)\s+(?:all|the)?\s*(?:markdown|md)\s+files?': 'find *.md',
+            r'\b(?:list|show)\s+(?:the\s+)?(?:folders?|directories|files?)\s*(?:here|now)?(?:\s+in\s+(?:the\s+)?)?(?:current|this)?\s*(?:directory|folder)?\b': 'list_directory',
             r'\b(?:show|list)\s+.*(?:in|from)\s+(?:this|current)?\s*(?:directory|folder)': 'list_directory',
             r'\b(?:what\'?s|show)\s+(?:in|inside)?\s*(?:this|current)?\s*(?:directory|folder)': 'list_directory',
+            r'\b(?:navigate to|go to|cd)\s+.+': 'change_directory',
             r'\bwhere\s+am\s+i\b': 'get_current_directory',
-            r'\b(?:current|this)\s+(?:directory|folder|location)': 'get_current_directory',
+            r'\b(?:what(?:\'?s| is)\s+)?(?:my\s+)?current\s+(?:directory|folder|location)\b': 'get_current_directory',
+            r'\bpwd\b': 'get_current_directory',
             
             # Search operations  
             r'\b(?:search|find|grep|look)\s+for\s+["\']?([^"\']+)["\']?': 'search_text',
@@ -42,6 +46,7 @@ class NaturalLanguageProcessor:
             
             # System operations
             r'\b(?:system|machine)\s+(?:info|information)': 'system_info',
+            r'\b(?:largest|biggest|large)\s+(?:folders?|directories)\b': 'quick_stats',
             r'\b(?:large|big)\s+files?': 'find_large_files',
             r'\b(?:clean|cleanup|remove)\s+.*(?:temp|temporary|cache)': 'clean_temp_files',
             r'\b(?:disk|storage)\s+(?:usage|space)': 'quick_stats',
@@ -101,7 +106,7 @@ class NaturalLanguageProcessor:
         # First, check for exact fuzzy matches
         fuzzy_match = state_manager.find_fuzzy_match(user_input_lower)
         if fuzzy_match:
-            return fuzzy_match, "Fuzzy match from history", self._get_operation_color(fuzzy_match)
+            return fuzzy_match, "Using a close match", self._get_operation_color(fuzzy_match)
         
         # Then, check pattern matches
         for pattern, command in self.command_patterns.items():
@@ -114,15 +119,33 @@ class NaturalLanguageProcessor:
                         actual_command = f"grep '{search_term}'"
                         return actual_command, f"Search for '{search_term}'", 'safe'
                 
-                return command, f"Natural language match", self._get_operation_color(command)
+                return command, "Matched your request", self._get_operation_color(command)
         
-        # Check for partial matches in command history
-        suggestions = state_manager.get_command_suggestions(user_input[:50])
-        if suggestions:
-            best_match = suggestions[0]
-            return best_match, "Similar command from history", self._get_operation_color(best_match)
+        # Check for partial matches in command history only when the input
+        # looks like an actionable command request. This avoids hijacking
+        # normal conversation turns like "hello".
+        if self._looks_like_command_request(user_input_lower):
+            suggestions = state_manager.get_command_suggestions(user_input[:50])
+            if suggestions:
+                best_match = suggestions[0]
+                similarity = SequenceMatcher(a=user_input_lower, b=best_match.lower()).ratio()
+                if similarity >= 0.9:
+                    return best_match, "Using a similar command", self._get_operation_color(best_match)
         
         return None
+
+    def _looks_like_command_request(self, text: str) -> bool:
+        """Heuristic: decide if input is likely an actionable command request."""
+        if not text or len(text.strip()) < 4:
+            return False
+
+        action_keywords = (
+            "show", "list", "find", "search", "grep", "read", "open",
+            "current", "directory", "folder", "file", "files",
+            "navigate", "go to", "cd", "change", "switch",
+            "git", "status", "analyze", "help", "command",
+        )
+        return any(keyword in text for keyword in action_keywords)
     
     def _get_operation_color(self, command: str) -> str:
         """Determine the color category for an operation."""
