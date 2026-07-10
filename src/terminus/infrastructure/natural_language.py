@@ -38,30 +38,59 @@ class NaturalLanguageProcessor:
             r'\b(?:git\s+)?commit\b': 'git_commit',
             r'\bwhat\s+changed\b': 'git_status_enhanced',
             r'\b(?:show|check)\s+git\s+status': 'git_status_enhanced',
-            
+
             # Project analysis
             r'\b(?:analyze|examine|understand|explain)\s+(?:this\s+)?project': 'analyze_project_structure',
             r'\b(?:project|code)\s+(?:structure|overview|analysis)': 'analyze_project_structure',
             r'\b(?:summarize|explain)\s+(?:this\s+)?code': 'summarize_code',
-            
+
             # System operations
             r'\b(?:system|machine)\s+(?:info|information)': 'system_info',
             r'\b(?:largest|biggest|large)\s+(?:folders?|directories)\b': 'quick_stats',
             r'\b(?:large|big)\s+files?': 'find_large_files',
             r'\b(?:clean|cleanup|remove)\s+.*(?:temp|temporary|cache)': 'clean_temp_files',
             r'\b(?:disk|storage)\s+(?:usage|space)': 'quick_stats',
-            
+
+            # Desktop automation (MUST match before generic clean patterns)
+            r'\b(?:clean|organize|clear|tidy)\s+(?:my\s+)?downloads?(?:\s+folder)?\b': 'clean_downloads',
+            r'\bdownloads?\s+(?:clean|organize|folder)\b': 'clean_downloads',
+            r'\b(?:archive|zip)\s+(?:inactive|old|unused)\s+(?:projects?|folders?)\b': 'archive_inactive_projects',
+            r'\b(?:find|remove|delete|clean)\s+(?:duplicate|dup)\s+screenshots?\b': 'remove_duplicate_screenshots',
+            r'\bduplicate\s+screenshots?\b': 'remove_duplicate_screenshots',
+            r'\b(?:list|show|find)\s+(?:running\s+)?(?:processes?|tasks?)\b': 'manage_processes',
+            r'\b(?:kill|terminate|stop)\s+(?:process|pid|task)\b': 'manage_processes',
+
             # Help and documentation
             r'\b(?:help|commands|what\s+can\s+you\s+do)': 'quick_help',
             r'\b(?:available|all)\s+(?:commands|tools)': 'list_all_commands',
             r'\b(?:examples|how\s+to)': 'command_examples',
         }
-        
+
         # Color-coded operation types
         self.operation_colors = {
             'safe': ['find', 'list', 'show', 'search', 'analyze', 'status', 'help'],
             'destructive': ['delete', 'remove', 'clean', 'commit', 'write', 'update'],
             'neutral': ['change', 'switch', 'move', 'copy', 'create']
+        }
+        
+        # Initialize with some basic fuzzy patterns
+        self._init_basic_patterns()
+    
+    def _init_basic_patterns(self):
+        """Initialize basic fuzzy patterns."""
+        basic_patterns = {
+            'show me all python files': 'find *.py',
+            'list python files': 'find *.py',
+            'find py files': 'find *.py',
+            'show javascript files': 'find *.js',
+            'list js files': 'find *.js',
+            'what files are here': 'list_directory',
+            'show current directory': 'list_directory',
+            'list directory contents': 'list_directory',
+            'where am i': 'get_current_directory',
+            'current directory': 'get_current_directory',
+            'git status': 'git_status_enhanced',
+            'show git status': 'git_status_enhanced',
         }
         
         # Initialize with some basic fuzzy patterns
@@ -89,6 +118,24 @@ class NaturalLanguageProcessor:
             'show todos': 'search_todos',
             'help': 'quick_help',
             'what commands': 'list_all_commands',
+            # Desktop automation fuzzy matches
+            'clean my downloads': 'clean_downloads',
+            'clean downloads': 'clean_downloads',
+            'clean downloads folder': 'clean_downloads',
+            'organize downloads': 'clean_downloads',
+            'organize my downloads': 'clean_downloads',
+            'tidy downloads': 'clean_downloads',
+            'clean up downloads': 'clean_downloads',
+            'remove duplicate screenshots': 'remove_duplicate_screenshots',
+            'find duplicate screenshots': 'remove_duplicate_screenshots',
+            'delete duplicate screenshots': 'remove_duplicate_screenshots',
+            'archive inactive projects': 'archive_inactive_projects',
+            'archive old projects': 'archive_inactive_projects',
+            'zip old projects': 'archive_inactive_projects',
+            'list running processes': 'manage_processes',
+            'show running processes': 'manage_processes',
+            'show processes': 'manage_processes',
+            'list processes': 'manage_processes',
         }
         
         for pattern, command in basic_patterns.items():

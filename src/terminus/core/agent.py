@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 import os
 import re
 from types import SimpleNamespace
@@ -108,39 +108,65 @@ def _build_agent_for_model(model_name: str, system_prompt: str) -> Agent:
 
 
 async def _process_node(node):
-    # from rich import print
-    # print('-' * 20)
-    # print(node)
-    # print('-' * 20)
+    from terminus.ui import is_tui_active, get_tui
 
     if isinstance(node, CallToolsNode):
         for part in node.model_response.parts:
+
+            # ── Reasoning / plan text ──────────────────────────────────────
+            if isinstance(part, TextPart):
+                text = part.content.strip()
+                if not text:
+                    continue
+
+                if is_tui_active():
+                    tui = get_tui()
+                    icon = "▸" if ("plan:" in text.lower() or text.startswith("Plan:") or text.startswith("1.")) else "›"
+                    # Truncate very long reasoning blobs for the thinking block
+                    preview = text[:200] + ("…" if len(text) > 200 else "")
+                    tui.append_thinking_step(icon, preview)
+                else:
+                    ui.stop_spinner()
+                    if "plan:" in text.lower() or text.startswith("Plan:") or text.startswith("1."):
+                        ui.plan(text)
+                    else:
+                        ui.thinking(text)
+                    ui.start_spinner()
+
+            # ── Tool call ──────────────────────────────────────────────────
             if isinstance(part, ToolCallPart):
-                log.debug(f"Calling tool: {part.tool_name}")
+                tool_name = part.tool_name
+                log.debug(f"Calling tool: {tool_name}")
+                if is_tui_active():
+                    get_tui().append_thinking_step("⚙", f"Using tool: {tool_name}")
 
-            # I cant' find a definitive way to check if a text part is a "thinking" response
-            # or not, but majority of the time they are accompanied by other tool calls.
-            # Using that as a basis for showing "thinking" messages.
-            if isinstance(part, TextPart) and len(node.model_response.parts) > 1:
-                ui.stop_spinner()
-                ui.thinking("Working on it...")
-                ui.start_spinner()
-
+    # Tool return results → show in thinking block too
     if hasattr(node, "request"):
         session.messages.append(node.request)
         log.debug("Added request to message history")
 
         for part in node.request.parts:
-            if part.part_kind == "retry-prompt":
-                if session.spinner:
-                    session.spinner.stop()
-                ui.muted("Trying again...")
-                if session.spinner:
-                    session.spinner.start()
+            if part.part_kind == "tool-return":
+                if is_tui_active():
+                    result_preview = str(getattr(part, "content", ""))[:120]
+                    if result_preview:
+                        get_tui().append_thinking_step("◉", f"Tool result: {result_preview}{'…' if len(str(getattr(part, 'content', ''))) > 120 else ''}")
+            elif part.part_kind == "retry-prompt":
+                if is_tui_active():
+                    get_tui().append_thinking_step("↺", "Retrying…")
+                else:
+                    if session.spinner:
+                        session.spinner.stop()
+                    ui.muted("Trying again...")
+                    if session.spinner:
+                        session.spinner.start()
 
     if hasattr(node, "model_response"):
         session.messages.append(node.model_response)
         log.debug("Added model response to message history")
+
+
+
 
 
 def get_or_create_agent():
@@ -228,6 +254,14 @@ def _create_confirmation_callback():
 
         if not session.confirmation_enabled or tool_name in session.disabled_confirmations:
             return True
+
+        from terminus.ui import is_tui_active, get_tui
+        if is_tui_active():
+            choice = await get_tui().request_confirmation(title, preview, footer)
+            if choice == "always":
+                session.disabled_confirmations.add(tool_name)
+                return True
+            return choice is True or choice == "yes"
 
         if session.spinner:
             session.spinner.stop()
@@ -397,6 +431,18 @@ async def _try_force_tool_usage(message: str) -> Optional[str]:
     return None
 
 
+def _extract_path_from_message(message: str) -> str | None:
+    """Extract a path from a natural language message."""
+    import re
+    match = re.search(r'["\']([^"\']+)["\']', message)
+    if match:
+        return match.group(1)
+    for word in message.split():
+        if "/" in word or "\\" in word:
+            return word
+    return None
+
+
 async def process_request(message: str):
     log.debug(f"Processing request: {message.replace('\n', ' ')[:100]}...")
 
@@ -450,6 +496,35 @@ async def process_request(message: str):
                 display_tool_status=_create_display_tool_status_callback(),
             )
             return await find_large_files(SimpleNamespace(deps=deps), ".")
+
+        # Desktop automation — NL-matched, bypasses model entirely
+        if command in ("clean_downloads", "remove_duplicate_screenshots",
+                       "archive_inactive_projects", "manage_processes"):
+            from terminus.tools import desktop as _dt
+            from terminus.core.deps import ToolDeps as _TD
+            _deps = _TD(confirm_action=_create_confirmation_callback())
+            _ctx  = SimpleNamespace(deps=_deps)
+
+            if command == "clean_downloads":
+                return await _dt.clean_downloads(_ctx, dry_run=True)
+
+            if command == "remove_duplicate_screenshots":
+                return await _dt.remove_duplicate_screenshots(_ctx, dry_run=True)
+
+            if command == "archive_inactive_projects":
+                # Try to extract the target path from the user message
+                _archive_path = _extract_path_from_message(message)
+                return await _dt.archive_inactive_projects(_ctx, path=_archive_path, dry_run=True)
+
+            if command == "manage_processes":
+                # Check if user is asking to filter by a specific process name
+                _name_filter = None
+                _msg_lower = message.lower()
+                for _keyword in ("python", "node", "chrome", "firefox", "java", "rust"):
+                    if _keyword in _msg_lower:
+                        _name_filter = _keyword
+                        break
+                return await _dt.manage_processes(_ctx, action="list", name_filter=_name_filter)
 
         if "navigate to" in message.lower() or "go to" in message.lower():
             from terminus.tools.file_ops.directory import change_directory

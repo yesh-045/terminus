@@ -62,6 +62,11 @@ async def _rotate_thinking_messages(style: str, interval: float = 5.0):
 
 def banner():
     """Display the enhanced application banner with modern styling."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().show_banner()
+        return
+
     from terminus.ui import panels
 
     console.clear()
@@ -82,6 +87,13 @@ def banner():
 
 def start_spinner(message: str = "", style: str = SpinnerStyle.DEFAULT):
     """Start the spinner with a message."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        if message == "":
+            message = get_thinking_message()
+        ui_mod.get_tui().start_tui_spinner(message)
+        return
+
     if message == "":
         message = get_thinking_message()
     formatted_message = style.format(message)
@@ -96,6 +108,11 @@ def start_spinner(message: str = "", style: str = SpinnerStyle.DEFAULT):
 
 def stop_spinner():
     """Stop the spinner."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().stop_tui_spinner()
+        return
+
     if session.spinner:
         session.spinner.stop()
         session.spinner = None

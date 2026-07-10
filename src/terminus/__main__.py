@@ -1,6 +1,23 @@
 import asyncio
+import io
 import logging
 import sys
+
+# Force UTF-8 output on Windows — prevents UnicodeEncodeError from box-drawing
+# characters in the TERMINUS banner when the console uses cp1252/cp850.
+if sys.platform == "win32":
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+    # Also set the Windows console code page to UTF-8 at the OS level
+    try:
+        import subprocess
+        subprocess.run(["chcp", "65001"], capture_output=True, shell=True)
+    except Exception:
+        pass
 
 import typer
 from rich.console import Console
@@ -75,6 +92,7 @@ def _initialize_config():
 def main(
     version: bool = typer.Option(False, "--version", "-v", help="Show version and exit."),
     debug: bool = typer.Option(False, "--debug", help="Enable debug logging to file."),
+    classic: bool = typer.Option(False, "--classic", "-c", help="Run in classic REPL mode."),
 ):
     """terminus CLI main entry point."""
     if version:
@@ -90,12 +108,17 @@ def main(
     session.init(config, config["default_model"])
 
     if load_guide(session):
-        ui.info("Loaded terminus.md guide")
+        log.debug("Loaded terminus.md guide")
 
     log.debug(f"Session initialized with model: {session.current_model}")
 
-    repl = Repl()
-    _setup_and_run_event_loop(repl.run())
+    if classic:
+        ui.info("Loaded terminus.md guide")
+        repl = Repl()
+        _setup_and_run_event_loop(repl.run())
+    else:
+        from terminus.ui.tui import run_tui
+        run_tui()
 
 
 if __name__ == "__main__":

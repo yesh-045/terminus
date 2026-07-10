@@ -81,7 +81,7 @@ async def system_info(ctx: RunContext[ToolDeps]) -> str:
                     env_vars.append(f"   {var}: {value}")
         
         result_parts = [
-            f"[{colors.primary}]🖥️ System Information[/{colors.primary}]",
+            f"[{colors.primary}][system] System Information[/{colors.primary}]",
             "",
             f"[{colors.accent}]Operating System:[/{colors.accent}] {system} {release}",
             f"[{colors.accent}]Architecture:[/{colors.accent}] {machine}",
@@ -150,7 +150,7 @@ async def quick_stats(ctx: RunContext[ToolDeps], path: str = ".") -> str:
                 lines = chars = words = None
             
             result_parts = [
-                f"[{colors.primary}]📄 File Statistics: [{colors.file}]{target_path.name}[/{colors.file}][/{colors.primary}]",
+                f"[{colors.primary}][file] File Statistics: [{colors.file}]{target_path.name}[/{colors.file}][/{colors.primary}]",
                 "",
                 f"[{colors.accent}]Size:[/{colors.accent}] {size:,} bytes ({size_kb:.1f} KB)",
             ]
@@ -201,7 +201,7 @@ async def quick_stats(ctx: RunContext[ToolDeps], path: str = ".") -> str:
             total_gb = total_size / (1024 * 1024 * 1024)
             
             result_parts = [
-                f"[{colors.primary}]📁 Directory Statistics: [{colors.directory}]{target_path.name}[/{colors.directory}][/{colors.primary}]",
+                f"[{colors.primary}][dir] Directory Statistics: [{colors.directory}]{target_path.name}[/{colors.directory}][/{colors.primary}]",
                 "",
                 f"[{colors.accent}]Files:[/{colors.accent}] {file_count:,}",
                 f"[{colors.accent}]Directories:[/{colors.accent}] {dir_count:,}",
@@ -372,7 +372,7 @@ async def find_large_files(ctx: RunContext[ToolDeps], path: str = ".", min_size_
         large_files.sort(key=lambda x: x[1], reverse=True)
         
         result_parts = [
-            f"[{colors.primary}]📏 Large Files (> {min_size_mb}MB) in [{colors.directory}]{path}[/{colors.directory}][/{colors.primary}]",
+            f"[{colors.primary}][files] Large Files (> {min_size_mb}MB) in [{colors.directory}]{path}[/{colors.directory}][/{colors.primary}]",
             ""
         ]
         

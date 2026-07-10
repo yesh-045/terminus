@@ -36,6 +36,14 @@ from terminus.tools.dev_tools import (
     quick_help,
 )
 
+# Import desktop tools
+from terminus.tools.desktop import (
+    clean_downloads,
+    archive_inactive_projects,
+    remove_duplicate_screenshots,
+    manage_processes,
+)
+
 # Import analysis tools
 from terminus.tools.analysis import (
     summarize_code,
@@ -87,6 +95,11 @@ def create_tools():
         Tool(create_project_template),
         Tool(find_large_files),
         Tool(clean_temp_files),
+        # Desktop utilities
+        Tool(clean_downloads),
+        Tool(archive_inactive_projects),
+        Tool(remove_duplicate_screenshots),
+        Tool(manage_processes),
         # Development workflow
         Tool(git_status_enhanced),
         Tool(package_info),

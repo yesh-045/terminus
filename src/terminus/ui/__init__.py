@@ -108,4 +108,26 @@ __all__ = [
     "PANEL_CONTENT_PADDING",
     "PANEL_WRAPPER_PADDING",
     "PANEL_WRAPPER_PADDING_NO_BOTTOM",
+    # TUI Hooks
+    "register_tui",
+    "unregister_tui",
+    "get_tui",
+    "is_tui_active",
 ]
+
+_tui_app = None
+
+def register_tui(app):
+    global _tui_app
+    _tui_app = app
+
+def unregister_tui():
+    global _tui_app
+    _tui_app = None
+
+def get_tui():
+    return _tui_app
+
+def is_tui_active():
+    return _tui_app is not None
+

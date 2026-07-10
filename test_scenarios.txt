@@ -1,0 +1,84 @@
+
+
+=============================================================
+1. Desktop & System Tools
+=============================================================
+* Scenario 1: Downloads Cleaning
+  - Description: Organizes downloads, removes duplicate downloads, deletes old installers.
+  - Questions to try:
+    - "Clean my Downloads folder"
+    - "Scan Downloads and group files by categories, but show me a dry run first"
+
+* Scenario 2: Duplicate Screenshots
+  - Description: Locates screenshots matching screenshot naming patterns, groups them by size, and deletes byte-identical duplicates.
+  - Questions to try:
+    - "Find and delete duplicate screenshots in test_screenshots"
+    - "Are there duplicate screenshots in test_screenshots? Clean them up"
+
+* Scenario 3: Inactive Projects Archiving
+  - Description: Traverses folders, finds directories inactive for 6 months, and zips them.
+  - Questions to try:
+    - "Archive inactive project folders inside workspace_projects"
+    - "Check workspace_projects and zip folders inactive for over 180 days"
+
+=============================================================
+2. Process & Hardware Monitoring
+=============================================================
+* Scenario: Listing and killing background processes; verifying TUI monitors.
+* Questions to try:
+  - "List all running python processes"
+  - "List all running processes and filter by name node"
+  - "Kill process with PID <enter_pid_from_console_output>"
+* UI Verification:
+  - Verify CPU, RAM, and GPU stats update dynamically in the sidebar.
+  - Verify that killing a process triggers a warning confirmation modal.
+
+=============================================================
+3. File Operations & Code Search
+=============================================================
+* Scenario: Discovering directory structures, searching strings, reading/updating code.
+* Questions to try:
+  - "List the files in the current directory"
+  - "Find all python files in the src folder"
+  - "Search for 'OptionList' inside src/terminus/ui"
+  - "Read the contents of pyproject.toml"
+  - "Create a new file named test_file.txt containing 'Hello Terminus!'"
+* UI Verification:
+  - File operations should execute and output formatted success/info badges.
+  - Read files should display their content formatted cleanly in the chat log.
+
+=============================================================
+4. Code Analysis & Project Intelligence
+=============================================================
+* Scenario: Code refactoring, structure summaries, and complexity audits.
+* Questions to try:
+  - "Analyze this project structure and summarize what it does"
+  - "Explain the structure of src/terminus/tools/desktop.py"
+  - "Check desktop.py for any complex functions"
+  - "Review the code inside src/terminus/ui/tui.py and suggest refactorings"
+
+=============================================================
+5. Git Workflow Automation
+=============================================================
+* Scenario: Staging changes and committing workflows with visual diff previews.
+* Questions to try:
+  - "Show enhanced git status"
+  - "Stage all changed files"
+  - "Commit my current changes with message 'Update manual test scenarios'"
+* UI Verification:
+  - Committing and staging should trigger visual confirmation modals.
+
+=============================================================
+6. Google Calendar & Gmail Integration
+=============================================================
+* Scenario: Calendar planning and reading emails (requires google setup).
+* Questions to try:
+  - "Check my Google authentication status"
+  - "List my unread Gmail messages"
+  - "Summarize my latest 3 unread emails"
+  - "Check my calendar availability for today"
+  - "Schedule a meeting titled 'Terminus Review' at 4 PM today for 30 minutes"
+  - "Block 2 hours of focus time tomorrow morning"
+* UI Verification:
+  - Calendar modifications and email drafting trigger confirmation dialog overlays.
+

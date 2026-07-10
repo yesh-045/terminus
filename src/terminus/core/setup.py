@@ -110,7 +110,7 @@ def handle_invalid_config(config_path: Path) -> Dict:
     choice = Prompt.ask("\nWhat would you like to do?", choices=["1", "2", "3"])
 
     if choice == "1":
-        from terminus.config import reset_config
+        from .config import reset_config
         try:
             reset_config(create_backup=True)
             console.print("[green]✓[/green] Configuration reset successfully (backup created)")

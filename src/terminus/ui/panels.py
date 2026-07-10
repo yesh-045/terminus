@@ -52,6 +52,10 @@ def create_panel(content, title: str, border_style: str):
 
 def display_panel(panel):
     """Display a panel with consistent padding."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("panel", panel)
+        return
     global _last_output
     _prepare_to_print("panel")
     console.print(Padding(panel, PANEL_WRAPPER_PADDING))
@@ -60,6 +64,10 @@ def display_panel(panel):
 
 def display_agent_panel(content: str, has_footer: bool = False):
     """Display agent response panel with specific padding."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("agent", content)
+        return
     global _last_output
     _prepare_to_print("panel")
     panel = create_panel(Markdown(content), "terminus", colors.primary)
@@ -70,6 +78,10 @@ def display_agent_panel(content: str, has_footer: bool = False):
 
 def display_tool_panel(content, title: str, footer: str = None):
     """Display tool data panel with optional footer."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("tool_panel", (content, title, footer))
+        return
     global _last_output
     _prepare_to_print("panel")
     panel = create_panel(content, title, colors.tool_data)
@@ -84,6 +96,10 @@ def display_tool_panel(content, title: str, footer: str = None):
 
 def display_confirmation_panel(content: str):
     """Display confirmation panel with consistent left padding."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("confirmation_panel", content)
+        return
     global _last_output
     _prepare_to_print("panel")
     panel = create_panel(content, "Confirm Action", colors.warning)
@@ -93,6 +109,10 @@ def display_confirmation_panel(content: str):
 
 def display_error_panel(message: str, detail: str = None, title="Error"):
     """Display error panel with consistent padding."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("error_panel", (message, detail, title))
+        return
     global _last_output
     _prepare_to_print("panel")
     content = f"{message}\n\n{detail}" if detail else message
@@ -103,6 +123,10 @@ def display_error_panel(message: str, detail: str = None, title="Error"):
 
 def display_info_panel(content, title: str):
     """Display info panel with consistent padding."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("info_panel", (content, title))
+        return
     global _last_output
     _prepare_to_print("panel")
     panel = create_panel(content, title, colors.muted)

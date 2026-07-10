@@ -16,6 +16,10 @@ console = Console()
 
 def info(message: str):
     """Display an info message."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("info", message)
+        return
     panels._prepare_to_print("status")
     console.print(f"• {message}", style=colors.primary)
     panels._last_output = "status"
@@ -23,6 +27,10 @@ def info(message: str):
 
 def thinking(message: str):
     """Display an agent thinking message with proper indentation for multi-line content."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("thinking", message)
+        return
     panels._prepare_to_print("status")
     lines = message.strip().split("\n")
     if lines:
@@ -32,8 +40,23 @@ def thinking(message: str):
     panels._last_output = "status"
 
 
+def plan(message: str):
+    """Display an agent plan message."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("plan", message)
+        return
+    panels._prepare_to_print("status")
+    console.print(f"📋 Plan:\n{message}", style=colors.info)
+    panels._last_output = "status"
+
+
 def error(message: str, detail: str = None):
     """Display an error message."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("error", f"{message}: {detail}" if detail else message)
+        return
     panels._prepare_to_print("status")
     if detail:
         console.print(f"✗ {message}: {detail}", style=colors.error)
@@ -44,6 +67,10 @@ def error(message: str, detail: str = None):
 
 def warning(message: str):
     """Display a warning message."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("warning", message)
+        return
     panels._prepare_to_print("status")
     console.print(f"⚠ {message}", style=colors.warning)
     panels._last_output = "status"
@@ -51,6 +78,10 @@ def warning(message: str):
 
 def success(message: str):
     """Display a success message."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("success", message)
+        return
     panels._prepare_to_print("status")
     console.print(f"✓ {message}", style=colors.success)
     panels._last_output = "status"
@@ -58,6 +89,10 @@ def success(message: str):
 
 def bullet(message: str):
     """Display a bullet point message."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("bullet", message)
+        return
     panels._prepare_to_print("status")
     console.print(f"  - {message}", style=colors.muted)
     panels._last_output = "status"
@@ -65,6 +100,10 @@ def bullet(message: str):
 
 def muted(message: str, spaces: int = 0):
     """Display a muted message."""
+    import terminus.ui as ui_mod
+    if ui_mod.is_tui_active():
+        ui_mod.get_tui().add_message("muted", f"{' ' * spaces}{message}")
+        return
     panels._prepare_to_print("status")
     console.print(f"{' ' * spaces}{message}", style=colors.muted)
     panels._last_output = "status"

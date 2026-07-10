@@ -701,7 +701,7 @@ async def handle_debug_test(args: list[str]):
         ui.display_confirmation_panel("Are you sure you want to proceed?")
 
     elif test_type == "confirm":
-        from terminus.agent import _create_confirmation_callback
+        from terminus.core.agent import _create_confirmation_callback
         confirm = _create_confirmation_callback()
         result = await confirm(
             "Test Action: Delete File", "This would delete important.txt", "File: important.txt"
